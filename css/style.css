@@ -1248,6 +1248,34 @@ body {
   background: rgba(249, 115, 22, 0.15);
 }
 
+/* Drag & Drop Styles */
+.schedule-cell.draggable {
+  cursor: grab;
+}
+
+.schedule-cell.draggable:active {
+  cursor: grabbing;
+}
+
+.schedule-cell.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  cursor: grabbing;
+}
+
+.schedule-cell.drag-over {
+  outline: 2px dashed var(--accent-blue);
+  outline-offset: -2px;
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+.schedule-cell.drag-invalid {
+  outline: 2px dashed var(--accent-red);
+  outline-offset: -2px;
+  background: rgba(239, 68, 68, 0.1) !important;
+  cursor: not-allowed;
+}
+
 /* Cell Content */
 .cell-content {
   display: flex;

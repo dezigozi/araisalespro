@@ -9,7 +9,8 @@ let calendarState = {
   month: new Date().getMonth() + 1,
   schedules: [],
   selectedCell: null,  // 単一選択に変更
-  salesReps: ['高野', '青木', '土岐', '中村']
+  salesReps: ['高野', '青木', '土岐', '中村'],
+  dragData: null  // ドラッグ中のデータ
 };
 
 // ========================================
@@ -144,11 +145,18 @@ function renderCalendarMatrix() {
       const date = new Date(calendarState.year, calendarState.month - 1, d);
       const dayOfWeek = date.getDay();
       const weekendClass = dayOfWeek === 0 ? 'sunday-cell' : dayOfWeek === 6 ? 'saturday-cell' : '';
+      
+      // 予定があればドラッグ可能
+      const hasSchedule = !!timeSlot;
+      const draggableAttr = hasSchedule ? 'draggable="true"' : '';
+      const draggableClass = hasSchedule ? 'draggable' : '';
 
-      html += `<td class="schedule-cell ${timeClass} ${weekendClass}" 
+      html += `<td class="schedule-cell ${timeClass} ${weekendClass} ${draggableClass}" 
                    data-rep="${rep}" 
                    data-date="${dateStr}"
-                   data-timeslot="${timeSlot}">
+                   data-timeslot="${timeSlot}"
+                   data-destination="${destination}"
+                   ${draggableAttr}>
         <div class="cell-content">
           <input type="text" 
                  class="destination-input" 
@@ -174,6 +182,14 @@ function renderCalendarMatrix() {
       if (e.target.classList.contains('destination-input')) return;
       handleCellClick(cell);
     });
+    
+    // ドラッグ&ドロップイベント
+    cell.addEventListener('dragstart', handleDragStart);
+    cell.addEventListener('dragover', handleDragOver);
+    cell.addEventListener('dragenter', handleDragEnter);
+    cell.addEventListener('dragleave', handleDragLeave);
+    cell.addEventListener('drop', handleDrop);
+    cell.addEventListener('dragend', handleDragEnd);
   });
 
   // 訪問先入力イベント
@@ -187,6 +203,8 @@ function renderCalendarMatrix() {
         handleCellClick(cell);
       }
     });
+    // 入力欄のドラッグを無効化
+    input.addEventListener('dragstart', (e) => e.preventDefault());
   });
 }
 
@@ -417,6 +435,126 @@ async function postCalendarAPI(data) {
   });
   // Cannot read response with no-cors, return success and verify via reload
   return { success: true };
+}
+
+// ========================================
+// ドラッグ&ドロップ処理
+// ========================================
+function handleDragStart(e) {
+  const cell = e.target.closest('.schedule-cell');
+  if (!cell || !cell.dataset.timeslot) {
+    e.preventDefault();
+    return;
+  }
+  
+  // ドラッグデータを保存
+  calendarState.dragData = {
+    rep: cell.dataset.rep,
+    date: cell.dataset.date,
+    timeslot: cell.dataset.timeslot,
+    destination: cell.dataset.destination || cell.querySelector('.destination-input')?.value || ''
+  };
+  
+  cell.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', JSON.stringify(calendarState.dragData));
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragEnter(e) {
+  e.preventDefault();
+  const cell = e.target.closest('.schedule-cell');
+  if (cell && calendarState.dragData) {
+    // 同じ担当者の行のみドロップ可能
+    if (cell.dataset.rep === calendarState.dragData.rep) {
+      cell.classList.add('drag-over');
+    } else {
+      cell.classList.add('drag-invalid');
+    }
+  }
+}
+
+function handleDragLeave(e) {
+  const cell = e.target.closest('.schedule-cell');
+  if (cell) {
+    cell.classList.remove('drag-over', 'drag-invalid');
+  }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  const targetCell = e.target.closest('.schedule-cell');
+  if (!targetCell || !calendarState.dragData) return;
+  
+  targetCell.classList.remove('drag-over', 'drag-invalid');
+  
+  const sourceData = calendarState.dragData;
+  const targetRep = targetCell.dataset.rep;
+  const targetDate = targetCell.dataset.date;
+  
+  // 同じ担当者の行のみ移動可能
+  if (targetRep !== sourceData.rep) {
+    showCalendarToast('同じ担当者の行にのみ移動できます', true);
+    return;
+  }
+  
+  // 同じ日付なら何もしない
+  if (targetDate === sourceData.date) {
+    return;
+  }
+  
+  // 移動先に既に予定がある場合は確認
+  if (targetCell.dataset.timeslot) {
+    if (!confirm('移動先に既存の予定があります。上書きしますか？')) {
+      return;
+    }
+  }
+  
+  // 予定を移動
+  moveSchedule(sourceData, targetDate);
+}
+
+function handleDragEnd(e) {
+  // すべてのドラッグ関連クラスをリセット
+  document.querySelectorAll('.schedule-cell').forEach(cell => {
+    cell.classList.remove('dragging', 'drag-over', 'drag-invalid');
+  });
+  calendarState.dragData = null;
+}
+
+// 予定を移動する
+async function moveSchedule(sourceData, targetDate) {
+  showCalendarToast('移動中...', false);
+  
+  try {
+    // 1. 移動先に新しい予定を作成
+    await postCalendarAPI({
+      action: 'updateVisitSchedule',
+      担当: sourceData.rep,
+      訪問予定日: targetDate,
+      訪問時間: sourceData.timeslot,
+      訪問先: sourceData.destination
+    });
+    
+    // 2. 元の予定を削除
+    await fetchCalendarAPI('deleteVisitSchedule', {
+      rep: sourceData.rep,
+      date: sourceData.date
+    });
+    
+    showCalendarToast('移動しました');
+    
+    // リロード
+    await loadVisitSchedule();
+  } catch (e) {
+    console.error('移動エラー:', e);
+    showCalendarToast('移動に失敗しました', true);
+    await loadVisitSchedule();
+  }
 }
 
 // ========================================
