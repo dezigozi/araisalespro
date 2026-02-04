@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARAI SALES PRO - 売上分析</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/analysis.css">
+  <!-- PDF出力用ライブラリ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <header class="header">
+    <div class="logo">ARAI <span>SALES PRO</span> <span id="headerCustomerName" class="header-customer-name"></span>
+    </div>
+    <nav class="header-nav">
+      <a href="dashboard.html" class="nav-link">📊 ダッシュボード</a>
+      <a href="index.html" class="nav-link">📝 活動記録</a>
+      <a href="attacklist.html" class="nav-link">📋 アタックリスト</a>
+      <a href="promotion.html" class="nav-link">📧 販促資料</a>
+      <a href="analysis.html" class="nav-link active">🔍 売上分析</a>
+    </nav>
+  </header>
+
+  <main class="main-container p-4 md:p-6 max-w-7xl mx-auto">
+    <!-- フィルタセクション（上部） -->
+    <section class="filter-section mb-6">
+      <div class="card bg-gray-800 rounded-xl p-6 shadow-lg">
+        <!-- ヘッダー: タイトル + 一括読み込み + キャッシュ状態 -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <span class="text-2xl">🔍</span> 抽出条件
+          </h2>
+          <div class="flex flex-wrap items-center gap-3">
+            <button id="loadDataBtn"
+              class="action-btn bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition-all transform hover:scale-105 flex items-center gap-2">
+              <span>📥</span> 一括読み込み
+            </button>
+            <div id="cacheStatus" class="text-sm text-gray-400 hidden">
+              <span id="cacheText">キャッシュ: なし</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- データ種別切り替え -->
+        <div class="flex justify-center mb-6">
+          <div class="bg-gray-700 p-1 rounded-lg inline-flex shadow-inner">
+            <button id="modeEstimate"
+              class="px-8 py-2 rounded-md text-sm font-bold transition-all duration-200 bg-blue-600 text-white shadow-sm transform scale-105">
+              見積分析
+            </button>
+            <button id="modeOrder"
+              class="px-8 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white transition-all duration-200">
+              受注分析
+            </button>
+          </div>
+        </div>
+
+        <!-- 上段: 略称・部店・本社 -->
+        <div class="flex flex-wrap justify-center gap-4 mb-4">
+          <!-- 略称 -->
+          <div class="filter-group">
+            <label class="block text-sm text-gray-400 mb-1">略称</label>
+            <select id="abbrFilter"
+              class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">すべて</option>
+            </select>
+          </div>
+
+          <!-- 部店 -->
+          <div class="filter-group">
+            <label class="block text-sm text-gray-400 mb-1">部店</label>
+            <select id="branchFilter"
+              class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">すべて</option>
+            </select>
+          </div>
+
+          <!-- 本社のみ -->
+          <div class="filter-group flex items-end">
+            <label
+              class="flex items-center gap-2 cursor-pointer bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+              <input type="checkbox" id="hqOnlyFilter" class="w-5 h-5 rounded accent-blue-500">
+              <span>本社</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 下段: 年月日 -->
+        <div class="flex flex-wrap justify-center gap-4 mb-4">
+          <!-- 対象年月（開始） -->
+          <div class="filter-group">
+            <label class="block text-sm text-gray-400 mb-1">開始年月</label>
+            <select id="startYearMonth"
+              class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">すべて</option>
+            </select>
+          </div>
+
+          <!-- 対象年月（終了） -->
+          <div class="filter-group">
+            <label class="block text-sm text-gray-400 mb-1">終了年月</label>
+            <select id="endYearMonth"
+              class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">すべて</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 担当者検索（部署横断） -->
+        <div class="flex flex-wrap justify-center gap-4 mb-4">
+          <div class="filter-group" style="min-width: 280px; position: relative;">
+            <label class="block text-sm text-gray-400 mb-1">👤 担当者で横断検索</label>
+            <input type="text" id="repNameSearch"
+              class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="担当者名を入力（例: 山田）" autocomplete="off">
+            <div id="repSuggestions" class="client-suggestions hidden"></div>
+            <div class="text-xs text-gray-500 mt-1">※略称選択後、部署をまたいで担当者を検索</div>
+          </div>
+        </div>
+
+        <!-- 顧客名検索（横断検索） -->
+        <div class="flex flex-wrap justify-center gap-4 mb-4">
+          <div class="filter-group" style="min-width: 280px; position: relative;">
+            <label class="block text-sm text-gray-400 mb-1">🔎 顧客名で横断検索</label>
+            <input type="text" id="clientNameSearch"
+              class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="顧客名を入力（例: トヨタ）" autocomplete="off">
+            <div id="clientSuggestions" class="client-suggestions hidden"></div>
+            <div class="text-xs text-gray-500 mt-1">※入力すると候補が表示されます（得意先横断）</div>
+          </div>
+        </div>
+
+        <!-- ボタン: 検索・クリア -->
+        <div class="flex flex-wrap justify-center gap-3">
+          <button id="searchBtn"
+            class="action-btn bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105 flex items-center gap-2">
+            <span>🔍</span> 検索
+          </button>
+          <button id="clearBtn"
+            class="action-btn bg-gray-600 hover:bg-gray-500 px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2">
+            <span>🔄</span> クリア
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第1階層：サマリー表示 -->
+    <section id="summarySection" class="results-section mb-6">
+      <div class="card bg-gray-800 rounded-xl p-6 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <span class="text-2xl">📊</span> 集計結果（サマリー）
+          </h2>
+          <button id="exportSummaryPdfBtn"
+            class="export-btn bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2">
+            <span>📄</span> PDF出力
+          </button>
+        </div>
+
+        <!-- デスクトップ：テーブル / スマホ：カード -->
+        <div id="summaryTableContainer" class="overflow-x-auto">
+          <table class="w-full text-left hidden md:table" id="summaryTable">
+            <thead class="bg-gray-700 text-gray-300">
+              <tr>
+                <th class="px-4 py-3 rounded-tl-lg">部署</th>
+                <th class="px-4 py-3 cursor-pointer hover:bg-gray-600" data-sort="repLastName">担当者 <span
+                    class="sort-icon">⇅</span></th>
+                <th class="px-4 py-3 cursor-pointer hover:bg-gray-600 text-right" data-sort="totalAmount">
+                  合計/単価 <span class="sort-icon">⇅</span></th>
+                <th class="px-4 py-3 rounded-tr-lg">TEL</th>
+              </tr>
+            </thead>
+            <tbody id="summaryTableBody" class="divide-y divide-gray-700">
+              <tr>
+                <td colspan="4" class="px-4 py-8 text-center text-gray-500">🔍 検索条件を指定して「検索」ボタンを押してください</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- スマホ用カードビュー -->
+          <div id="summaryCards" class="md:hidden space-y-3">
+            <div class="text-center text-gray-500 py-8">🔍 検索条件を指定して「検索」ボタンを押してください</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第2階層：詳細表示（初期非表示） -->
+    <section id="detailSection" class="results-section hidden">
+      <div class="card bg-gray-800 rounded-xl p-6 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div class="flex items-center gap-4">
+            <button id="backToSummaryBtn"
+              class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2">
+              <span>←</span> 戻る
+            </button>
+            <h2 id="detailTitle" class="text-xl font-bold flex items-center gap-2">
+              <span class="text-2xl">📋</span> 詳細：<span class="text-blue-400">顧客名</span>
+            </h2>
+          </div>
+          <button id="exportDetailPdfBtn"
+            class="export-btn bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2">
+            <span>📄</span> PDF出力
+          </button>
+        </div>
+
+        <div id="detailTableContainer" class="overflow-x-auto">
+          <table class="w-full text-left hidden md:table" id="detailTable">
+            <thead class="bg-gray-700 text-gray-300">
+              <tr>
+                <th class="px-4 py-3 rounded-tl-lg">顧客名</th>
+                <th class="px-4 py-3">品番</th>
+                <th class="px-4 py-3">商品名</th>
+                <th class="px-4 py-3 text-right">受注数量</th>
+                <th class="px-4 py-3 rounded-tr-lg text-right">合計/単価</th>
+              </tr>
+            </thead>
+            <tbody id="detailTableBody" class="divide-y divide-gray-700">
+            </tbody>
+          </table>
+
+          <!-- スマホ用カードビュー -->
+          <div id="detailCards" class="md:hidden space-y-3">
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast通知 -->
+  <div id="toast"
+    class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50">
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/analysis.js?v=20260130-3"></script>
+</body>
+
+</html>

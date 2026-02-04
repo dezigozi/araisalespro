@@ -1,0 +1,295 @@
+/* ========================================
+   ダッシュボードページ専用スタイル
+   ======================================== */
+
+.dashboard-container {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ========================================
+   Month Selector（左上・小さく）
+   ======================================== */
+.month-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    align-self: flex-start;
+}
+
+.month-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.month-nav-btn {
+    width: 24px;
+    height: 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.month-nav-btn:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+}
+
+.current-month {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ========================================
+   Data Table
+   ======================================== */
+.data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.data-table th,
+.data-table td {
+    width: 120px;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+    width: 200px;
+    text-align: left;
+}
+
+.data-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.data-table td {
+    background: var(--bg-card);
+}
+
+.data-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 合計行 */
+.data-table tr.total-row {
+    background: rgba(59, 130, 246, 0.08) !important;
+}
+
+.data-table tr.total-row td {
+    font-weight: 700;
+    border-top: 2px solid var(--accent-blue);
+}
+
+/* ローディング */
+.data-table .loading {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   Table Title
+   ======================================== */
+.table-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: flex-start;
+}
+
+.table-title::before {
+    content: '';
+    width: 3px;
+    height: 1em;
+    background: var(--accent-blue);
+    border-radius: 2px;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+.empty-state {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* ========================================
+   Dashboard Header (Month + Export)
+   ======================================== */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.export-btn {
+    padding: 0.4rem 0.8rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.export-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.export-btn:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   Attack Statistics Headers
+   ======================================== */
+.attack-header {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: var(--accent-blue) !important;
+
+    .separator {
+        width: 2px;
+        background: var(--border-color);
+    }
+}
+
+/* Result badges in visits table */
+.result-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.result-badge.good {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.result-badge.triangle {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.result-badge.bad {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Delete button for calendar */
+.delete-schedule-btn {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delete-schedule-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.delete-schedule-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   Visits Header (Title + Filter)
+   ======================================== */
+.visits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.visits-header .table-title {
+    margin-bottom: 0;
+}
+
+.visits-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.filter-select {
+    padding: 0.4rem 0.8rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 120px;
+}
+
+.filter-select:hover {
+    border-color: var(--accent-blue);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}

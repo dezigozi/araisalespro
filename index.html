@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARAI SALES PRO - 活動記録</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">ARAI <span>SALES PRO</span></div>
+    <nav class="header-nav">
+      <a href="dashboard.html" class="nav-link">📊 ダッシュボード</a>
+      <a href="index.html" class="nav-link active">📝 活動記録</a>
+      <a href="attacklist.html" class="nav-link">📋 アタックリスト</a>
+      <a href="promotion.html" class="nav-link">📧 販促資料</a>
+      <a href="analysis.html" class="nav-link">🔍 売上分析</a>
+    </nav>
+  </header>
+
+  <!-- 営業担当者選択 -->
+  <div class="sales-rep-selector">
+    <div class="sales-rep-container">
+      <label class="sales-rep-label">👤 営業担当者</label>
+      <select id="salesRepSelect" class="sales-rep-select">
+        <option value="">担当者を選択してください</option>
+        <option value="高野直樹">高野直樹</option>
+        <option value="青木豊">青木豊</option>
+        <option value="土岐暁治">土岐暁治</option>
+        <option value="中村正明">中村正明</option>
+      </select>
+    </div>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="form">📝 記録する</button>
+    <button class="tab-btn" data-tab="list">📋 履歴を見る</button>
+  </nav>
+
+  <main class="main-container">
+    <!-- 入力フォーム -->
+    <section id="tab-form" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">活動を記録</h2>
+          <button type="button" id="refreshMasterBtn" class="refresh-btn">🔄 マスタ更新</button>
+        </div>
+        <form id="activityForm">
+          <!-- アプローチ手段 -->
+          <div class="form-group">
+            <label class="form-label">■ アプローチ手段</label>
+            <div class="approach-types">
+              <button type="button" class="approach-btn active" data-type="訪問">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>訪問</span>
+              </button>
+              <button type="button" class="approach-btn" data-type="電話">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                  </path>
+                </svg>
+                <span>電話</span>
+              </button>
+              <button type="button" class="approach-btn" data-type="メール">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>メール</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 会えた？ -->
+          <div class="form-group">
+            <label class="form-label">■ 会えた？</label>
+            <div class="met-buttons">
+              <button type="button" class="met-btn yes active" data-met="○">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+              </button>
+              <button type="button" class="met-btn triangle" data-met="△">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polygon points="12,3 22,21 2,21"></polygon>
+                </svg>
+              </button>
+              <button type="button" class="met-btn no" data-met="×">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 会社 -->
+          <div class="form-group">
+            <label class="form-label">■ 会社</label>
+            <select class="form-select" id="companySelect" required>
+              <option value="">選択してください</option>
+            </select>
+          </div>
+
+          <!-- 部署 -->
+          <div class="form-group">
+            <label class="form-label">■ 部署</label>
+            <select class="form-select" id="departmentSelect" required disabled>
+              <option value="">会社を選択してください</option>
+            </select>
+          </div>
+
+          <!-- 担当者 -->
+          <div class="form-group">
+            <label class="form-label">■ 担当者（複数選択可）</label>
+            <div class="contact-select-wrapper">
+              <input type="text" id="contactSearch" class="contact-search-input" placeholder="🔍 名前で検索..." disabled>
+              <div id="contactCheckboxList" class="contact-checkbox-list disabled">
+                <div class="contact-placeholder">部署を選択してください</div>
+              </div>
+              <button type="button" id="addContactBtn" class="add-contact-btn" disabled>
+                ＋ 新規登録
+              </button>
+            </div>
+          </div>
+
+          <!-- 反応 -->
+          <div class="form-group">
+            <label class="form-label">■ 相手の反応</label>
+            <div class="reaction-buttons">
+              <button type="button" class="reaction-btn good" data-reaction="好反応">
+                <span class="emoji">😊</span>
+                <span>好反応</span>
+              </button>
+              <button type="button" class="reaction-btn normal" data-reaction="普通">
+                <span class="emoji">😐</span>
+                <span>普通</span>
+              </button>
+              <button type="button" class="reaction-btn bad" data-reaction="難色">
+                <span class="emoji">😞</span>
+                <span>難色</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 提案商品 -->
+          <div class="form-group">
+            <label class="form-label">■ 提案商品</label>
+            <div id="proposalProducts" class="proposal-products">
+              <div class="loading-small">読み込み中...</div>
+            </div>
+            <div class="proposal-other">
+              <label class="proposal-other-label">
+                <input type="checkbox" id="proposalOther">
+                その他:
+              </label>
+              <input type="text" id="proposalOtherText" class="proposal-other-input" maxlength="10" placeholder="10文字以内"
+                disabled>
+            </div>
+          </div>
+
+          <!-- 訪問日 -->
+          <div class="form-group">
+            <label class="form-label">■ 訪問日</label>
+            <input type="date" class="form-input" id="visitDate" required>
+          </div>
+
+          <!-- 特記事項 -->
+          <div class="form-group">
+            <label class="form-label">■ 特記事項</label>
+            <textarea class="form-textarea" id="noteText" placeholder="メモを入力..."></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">活動を記録</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 活動履歴 -->
+    <section id="tab-list" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">活動履歴</h2>
+          <div class="history-filter">
+            <label class="filter-label">👤 担当者で絞り込み:</label>
+            <select id="historyFilterSelect" class="filter-select">
+              <option value="">全員</option>
+              <option value="高野直樹">高野直樹</option>
+              <option value="青木豊">青木豊</option>
+              <option value="土岐暁治">土岐暁治</option>
+              <option value="中村正明">中村正明</option>
+            </select>
+          </div>
+        </div>
+        <div id="activityList" class="activity-list">
+          <div class="loading">読み込み中</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 新規担当者登録モーダル -->
+  <div id="addContactModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>👤 担当者の新規登録</h3>
+        <button type="button" class="modal-close" id="closeAddContactModal">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-note">※ Webから登録した担当者はスプレッドシート上で「★」マークが付きます</p>
+        <div class="form-group">
+          <label class="form-label">担当者名</label>
+          <input type="text" id="newContactName" class="form-input" placeholder="例: 山田 太郎" required>
+        </div>
+        <div class="form-group">
+          <p class="modal-info">
+            <strong>会社:</strong> <span id="modalCompany">-</span><br>
+            <strong>部署:</strong> <span id="modalDepartment">-</span>
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cancelAddContact" class="btn-secondary">キャンセル</button>
+        <button type="button" id="submitAddContact" class="btn-primary">登録する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 活動記録編集モーダル -->
+  <div id="editActivityModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h3>✏️ 活動記録の編集</h3>
+        <button type="button" class="modal-close" id="closeEditModal">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editActivityId">
+
+        <!-- アプローチ手段 -->
+        <div class="form-group">
+          <label class="form-label">■ アプローチ手段</label>
+          <div class="approach-types">
+            <button type="button" class="approach-btn edit-approach-btn" data-type="訪問">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>訪問</span>
+            </button>
+            <button type="button" class="approach-btn edit-approach-btn" data-type="電話">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                </path>
+              </svg>
+              <span>電話</span>
+            </button>
+            <button type="button" class="approach-btn edit-approach-btn" data-type="メール">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <span>メール</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 会えた？ -->
+        <div class="form-group">
+          <label class="form-label">■ 会えた？</label>
+          <div class="met-buttons">
+            <button type="button" class="met-btn yes edit-met-btn" data-met="○">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <circle cx="12" cy="12" r="10"></circle>
+              </svg>
+            </button>
+            <button type="button" class="met-btn triangle edit-met-btn" data-met="△">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polygon points="12,3 22,21 2,21"></polygon>
+              </svg>
+            </button>
+            <button type="button" class="met-btn no edit-met-btn" data-met="×">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 反応 -->
+        <div class="form-group">
+          <label class="form-label">■ 相手の反応</label>
+          <div class="reaction-buttons">
+            <button type="button" class="reaction-btn good edit-reaction-btn" data-reaction="好反応">
+              <span class="emoji">😊</span>
+              <span>好反応</span>
+            </button>
+            <button type="button" class="reaction-btn normal edit-reaction-btn" data-reaction="普通">
+              <span class="emoji">😐</span>
+              <span>普通</span>
+            </button>
+            <button type="button" class="reaction-btn bad edit-reaction-btn" data-reaction="難色">
+              <span class="emoji">😞</span>
+              <span>難色</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 会社（読み取り専用表示） -->
+        <div class="form-group">
+          <label class="form-label">■ 会社</label>
+          <input type="text" id="editCompany" class="form-input" readonly>
+        </div>
+
+        <!-- 部署（読み取り専用表示） -->
+        <div class="form-group">
+          <label class="form-label">■ 部署</label>
+          <input type="text" id="editDepartment" class="form-input" readonly>
+        </div>
+
+        <!-- 担当者（検索可能リスト） -->
+        <div class="form-group">
+          <label class="form-label">■ 担当者</label>
+          <div class="contact-select-wrapper">
+            <input type="text" id="editContactSearch" class="contact-search-input" placeholder="🔍 名前で検索...">
+            <div id="editContactList" class="contact-checkbox-list">
+              <div class="contact-placeholder">読み込み中...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 当社担当（セレクト） -->
+        <div class="form-group">
+          <label class="form-label">■ 当社担当</label>
+          <select class="form-select" id="editSalesRep">
+            <option value="">選択してください</option>
+            <option value="高野直樹">高野直樹</option>
+            <option value="青木豊">青木豊</option>
+            <option value="土岐暁治">土岐暁治</option>
+            <option value="中村正明">中村正明</option>
+          </select>
+        </div>
+
+        <!-- 訪問日 -->
+        <div class="form-group">
+          <label class="form-label">■ 訪問日</label>
+          <input type="date" class="form-input" id="editVisitDate" required>
+        </div>
+
+        <!-- 提案商品 -->
+        <div class="form-group">
+          <label class="form-label">■ 提案商品</label>
+          <div id="editProposalProducts" class="proposal-products">
+            <div class="loading-small">読み込み中...</div>
+          </div>
+        </div>
+
+        <!-- 特記事項 -->
+        <div class="form-group">
+          <label class="form-label">■ 特記事項</label>
+          <textarea class="form-textarea" id="editNoteText" placeholder="メモを入力..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cancelEditActivity" class="btn-secondary">キャンセル</button>
+        <button type="button" id="submitEditActivity" class="btn-primary">更新する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast通知 -->
+  <div id="toast" class="toast"></div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

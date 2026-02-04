@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARAI SALES PRO - 過去実績</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/performance.css">
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">ARAI <span>SALES PRO</span></div>
+    <nav class="header-nav">
+      <a href="dashboard.html" class="nav-link">📊 ダッシュボード</a>
+      <a href="index.html" class="nav-link">📝 活動記録</a>
+      <a href="promotion.html" class="nav-link">📧 販促資料</a>
+      <a href="performance.html" class="nav-link active">📈 過去実績</a>
+      <a href="analysis.html" class="nav-link">🔍 売上分析</a>
+    </nav>
+  </header>
+
+  <main class="main-container performance-container">
+    <!-- フィルタセクション -->
+    <section class="filter-section">
+      <div class="card">
+        <h2 class="card-title">🔍 抽出条件</h2>
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label class="filter-label">得意先名</label>
+            <select id="customerFilter" class="form-select">
+              <option value="">すべて</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">得意先担当者名</label>
+            <select id="repFilter" class="form-select">
+              <option value="">すべて</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button id="searchBtn" class="action-btn primary">🔍 検索</button>
+          <button id="clearBtn" class="action-btn secondary">🔄 クリア</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 実績テーブルセクション -->
+    <section class="results-section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📊 受注実績</h2>
+          <div class="export-buttons">
+            <button id="exportPdfBtn" class="export-btn">📄 PDF表示</button>
+            <button id="exportCsvBtn" class="export-btn">📥 CSV出力</button>
+          </div>
+        </div>
+
+        <!-- ソート可能なテーブル -->
+        <div class="table-container">
+          <table class="data-table performance-table" id="performanceTable">
+            <thead>
+              <tr>
+                <th data-sort="orderYearMonth" class="sortable">受注年月 <span class="sort-icon">⇅</span></th>
+                <th data-sort="customerName" class="sortable">得意先名 <span class="sort-icon">⇅</span></th>
+                <th data-sort="customerRep" class="sortable">得意先担当者名 <span class="sort-icon">⇅</span></th>
+                <th data-sort="clientName" class="sortable">顧客名_漢字 <span class="sort-icon">⇅</span></th>
+                <th data-sort="orderCount" class="sortable number">受注件数 <span class="sort-icon">⇅</span></th>
+                <th data-sort="salesAmount" class="sortable number">売上金額 <span class="sort-icon">⇅</span></th>
+              </tr>
+            </thead>
+            <tbody id="performanceTableBody">
+              <tr>
+                <td colspan="6" class="empty-row">🔍 検索条件を指定して「検索」ボタンを押してください</td>
+              </tr>
+            </tbody>
+            <tfoot id="performanceTableFoot">
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 詳細分析モーダル -->
+  <div id="detailModal" class="modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h3 id="modalTitle">詳細分析</h3>
+        <div class="modal-actions">
+          <button class="export-btn" id="modalPdfBtn">📄 PDF表示</button>
+          <button class="modal-close" id="closeModal">✕</button>
+        </div>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="navi">🚗 ナビ</button>
+        <button class="modal-tab" data-tab="dorare">📹 ドラレコ</button>
+        <button class="modal-tab" data-tab="vehicle">🚙 車種</button>
+      </div>
+      <div class="modal-body">
+        <!-- ナビタブ -->
+        <div id="tab-navi" class="modal-tab-content active">
+          <table class="data-table detail-table">
+            <thead>
+              <tr>
+                <th>得意先担当者名</th>
+                <th>顧客_漢字</th>
+                <th>車種名</th>
+                <th>商品</th>
+                <th class="number">受注件数</th>
+              </tr>
+            </thead>
+            <tbody id="naviTableBody">
+              <tr>
+                <td colspan="5" class="loading">読み込み中...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- ドラレコタブ -->
+        <div id="tab-dorare" class="modal-tab-content">
+          <table class="data-table detail-table">
+            <thead>
+              <tr>
+                <th>得意先担当者名</th>
+                <th>顧客_漢字</th>
+                <th>車種名</th>
+                <th>商品</th>
+                <th class="number">受注件数</th>
+              </tr>
+            </thead>
+            <tbody id="dorareTableBody">
+              <tr>
+                <td colspan="5" class="loading">読み込み中...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- 車種タブ -->
+        <div id="tab-vehicle" class="modal-tab-content">
+          <table class="data-table detail-table">
+            <thead>
+              <tr>
+                <th>得意先担当者名</th>
+                <th>顧客_漢字</th>
+                <th>車種名</th>
+                <th class="number">受注件数</th>
+              </tr>
+            </thead>
+            <tbody id="vehicleTableBody">
+              <tr>
+                <td colspan="4" class="loading">読み込み中...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast通知 -->
+  <div id="toast" class="toast"></div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/performance.js"></script>
+</body>
+
+</html>

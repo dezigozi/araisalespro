@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARAI SALES PRO - ダッシュボード</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">ARAI <span>SALES PRO</span></div>
+        <nav class="header-nav">
+            <a href="dashboard.html" class="nav-link active">📊 ダッシュボード</a>
+            <a href="index.html" class="nav-link">📝 活動記録</a>
+            <a href="attacklist.html" class="nav-link">📋 アタックリスト</a>
+            <a href="promotion.html" class="nav-link">📧 販促資料</a>
+            <a href="analysis.html" class="nav-link">🔍 売上分析</a>
+        </nav>
+    </header>
+
+    <!-- 訪問予定カレンダー -->
+    <section id="visitCalendarSection" class="visit-calendar-section">
+        <div class="visit-calendar-card">
+            <div class="calendar-header">
+                <h2 class="card-title">📅 訪問予定カレンダー</h2>
+                <div class="calendar-controls">
+                    <button id="prevMonthBtn" class="calendar-nav-btn">◀</button>
+                    <span id="calendarMonth" class="current-month">2025年1月</span>
+                    <button id="nextMonthBtn" class="calendar-nav-btn">▶</button>
+                </div>
+            </div>
+
+            <!-- 時間帯選択ツールバー -->
+            <div class="time-slot-toolbar">
+                <span class="toolbar-label">時間帯:</span>
+                <label class="time-slot-option">
+                    <input type="radio" name="timeSlot" value="終日">
+                    <span class="slot-badge slot-allday">終日</span>
+                </label>
+                <label class="time-slot-option">
+                    <input type="radio" name="timeSlot" value="AM">
+                    <span class="slot-badge slot-am">AM</span>
+                </label>
+                <label class="time-slot-option">
+                    <input type="radio" name="timeSlot" value="PM">
+                    <span class="slot-badge slot-pm">PM</span>
+                </label>
+                <button id="saveScheduleBtn" class="save-schedule-btn" disabled>💾 保存</button>
+                <button id="deleteScheduleBtn" class="delete-schedule-btn" disabled>🗑️ 削除</button>
+            </div>
+
+            <!-- カレンダーマトリクス -->
+            <div class="calendar-matrix" id="calendarMatrix">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-container dashboard-container">
+        <!-- 月選択とCSVエクスポート -->
+        <div class="dashboard-header">
+            <div class="month-selector">
+                <span class="month-label">年月</span>
+                <button id="prevMonth" class="month-nav-btn">◀</button>
+                <span id="currentMonth" class="current-month">2025年12月</span>
+                <button id="nextMonth" class="month-nav-btn">▶</button>
+            </div>
+            <div class="export-buttons">
+                <button id="exportSummaryCsv" class="export-btn">📥 サマリーCSV</button>
+                <button id="exportVisitsCsv" class="export-btn">📥 訪問者CSV</button>
+            </div>
+        </div>
+
+        <!-- 会社別サマリーテーブル -->
+        <table class="data-table summary-table">
+            <thead>
+                <tr>
+                    <th>会社名</th>
+                    <th>目標</th>
+                    <th>実績</th>
+                    <th>進捗率</th>
+                    <th>残数</th>
+                    <th class="separator"></th>
+                    <th class="attack-header">総アタック</th>
+                    <th class="attack-header">○</th>
+                    <th class="attack-header">△</th>
+                    <th class="attack-header">×</th>
+                    <th class="attack-header">ヒット率</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody">
+                <tr>
+                    <td colspan="11" class="loading">読み込み中...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 訪問者一覧テーブル -->
+        <div class="visits-header">
+            <h3 class="table-title">訪問者一覧</h3>
+            <div class="visits-filter">
+                <label class="filter-label">👤 担当者:</label>
+                <select id="dashboardSalesRepSelect" class="filter-select">
+                    <option value="">全員</option>
+                    <option value="高野直樹">高野直樹</option>
+                    <option value="青木豊">青木豊</option>
+                    <option value="土岐暁治">土岐暁治</option>
+                    <option value="中村正明">中村正明</option>
+                </select>
+                <label class="filter-label">📊 結果:</label>
+                <select id="dashboardResultSelect" class="filter-select">
+                    <option value="">すべて</option>
+                    <option value="○">○</option>
+                    <option value="△">△</option>
+                    <option value="×">×</option>
+                </select>
+            </div>
+        </div>
+        <table class="data-table visits-table">
+            <thead>
+                <tr>
+                    <th>会社名</th>
+                    <th>部署名</th>
+                    <th>氏名</th>
+                    <th>月日</th>
+                    <th>結果</th>
+                    <th>担当者</th>
+                </tr>
+            </thead>
+            <tbody id="visitsTableBody">
+                <tr>
+                    <td colspan="6" class="loading">読み込み中...</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Toast通知 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/visit-calendar.js"></script>
+</body>
+
+</html>

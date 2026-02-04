@@ -1,0 +1,690 @@
+/* ========================================
+   アタックリスト専用スタイル（表形式）
+   ======================================== */
+
+/* ヘッダーツールバー */
+.attack-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.attack-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.attack-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.target-month {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+}
+
+.attack-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.status-legend {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.legend-item.good {
+  color: #22c55e;
+}
+
+.legend-item.warning {
+  color: #f59e0b;
+}
+
+.legend-item.distant {
+  color: #ef4444;
+}
+
+.selection-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* フィルターツールバー */
+.filter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.5rem;
+  background: var(--card);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+
+.filter-group select {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.filter-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #6366f1;
+}
+
+/* タブナビゲーション */
+.attack-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.attack-tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: var(--card);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.attack-tab:hover {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.attack-tab.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.action-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+
+/* タブパネル */
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* テーブルコンテナ */
+.table-container {
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* テーブルスタイル */
+.contacts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.contacts-table thead {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.contacts-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.contacts-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+}
+
+.contacts-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.contacts-table tbody tr.selected {
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.contacts-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+/* 列幅調整 */
+.col-check {
+  width: 40px;
+  text-align: center;
+}
+
+.col-company {
+  min-width: 100px;
+}
+
+.col-dept {
+  min-width: 100px;
+}
+
+.col-contact {
+  min-width: 80px;
+}
+
+.col-lastvisit {
+  width: 100px;
+}
+
+.col-days {
+  width: 70px;
+  text-align: center;
+}
+
+.col-status {
+  width: 50px;
+  text-align: center;
+}
+
+.col-rep {
+  width: 100px;
+}
+
+.col-tel {
+  width: 120px;
+}
+
+.col-action {
+  width: 100px;
+  text-align: center;
+}
+
+/* チェックボックス */
+.contacts-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+/* ステータスドット */
+.status-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.status-dot.good {
+  background: #22c55e;
+}
+
+.status-dot.warning {
+  background: #f59e0b;
+}
+
+.status-dot.distant {
+  background: #ef4444;
+}
+
+/* 経過日数 */
+.days-cell {
+  font-weight: 600;
+}
+
+.days-cell.good {
+  color: #22c55e;
+}
+
+.days-cell.warning {
+  color: #f59e0b;
+}
+
+.days-cell.distant {
+  color: #ef4444;
+}
+
+/* 電話番号リンク */
+.tel-link {
+  color: #6366f1;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tel-link:hover {
+  text-decoration: underline;
+}
+
+/* 活動記録ボタン */
+.activity-link {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.activity-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* 選択パネル（フローティング） */
+.selection-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  transform: translateY(0);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.selection-panel.hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.selection-panel-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.panel-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+}
+
+.panel-icon {
+  font-size: 1.5rem;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.clear-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.save-action-btn {
+  padding: 0.6rem 1.5rem;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* アクションリストヘッダー */
+.actionlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.actionlist-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.action-month {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* 空状態・ローディング */
+.empty-state,
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* レスポンシブ */
+@media (max-width: 1024px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .contacts-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .attack-header {
+    padding: 1rem;
+  }
+
+  .attack-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .attack-title {
+    font-size: 1.2rem;
+  }
+
+  .status-legend {
+    display: none;
+  }
+
+  .filter-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .attack-tabs {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .attack-tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .selection-panel {
+    padding: 0.75rem 1rem;
+  }
+
+  .selection-panel-content {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .panel-actions {
+    width: 100%;
+  }
+
+  .save-action-btn {
+    flex: 1;
+  }
+}
+
+/* メインコンテナの余白調整（パネル用） */
+.main-container {
+  padding-bottom: 100px;
+  /* アタックリストページは1カラムレイアウト（style.cssの2カラムを上書き） */
+  display: block !important;
+  grid-template-columns: none !important;
+}
+
+/* ========================================
+   年月ナビゲーション
+   ======================================== */
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.month-nav-btn {
+  width: 28px;
+  height: 28px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-nav-btn:hover {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: white;
+}
+
+/* ========================================
+   進捗表示
+   ======================================== */
+.action-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.progress-label {
+  opacity: 0.9;
+}
+
+.progress-count {
+  font-weight: 700;
+}
+
+/* ========================================
+   スプレッドシートリンクバナー
+   ======================================== */
+.sheet-link-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.sheet-link {
+  color: #6366f1;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sheet-link:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   ステータスセレクト
+   ======================================== */
+.status-select {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  min-width: 90px;
+}
+
+.status-select.pending {
+  border-color: #6b7280;
+}
+
+.status-select.in_progress {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.status-select.completed {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.status-select.skip {
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
+
+/* ========================================
+   空状態ガイド
+   ======================================== */
+.empty-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.empty-guide.hidden {
+  display: none;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-guide h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-guide p {
+  color: var(--text-secondary);
+  margin: 0 0 1.5rem 0;
+}
+
+.open-sheet-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.open-sheet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* テーブルの非表示 */
+.table-container.hidden {
+  display: none;
+}

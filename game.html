@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍄 スーパーアライくん</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #5c94fc 0%, #5c94fc 60%, #87ceeb 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+        }
+
+        .game-wrapper {
+            position: relative;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 800px;
+            padding: 10px 20px;
+            background: #000;
+            color: #fff;
+            font-size: 14px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .score-display {
+            display: flex;
+            gap: 30px;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .score-label {
+            color: #888;
+            font-size: 10px;
+        }
+
+        .score-value {
+            color: #fff;
+        }
+
+        #gameCanvas {
+            border: 4px solid #000;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            margin-top: 20px;
+            color: #fff;
+            text-align: center;
+            font-size: 12px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .controls p {
+            margin: 5px 0;
+        }
+
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            z-index: 100;
+        }
+
+        .game-title {
+            font-size: 32px;
+            color: #e52521;
+            text-shadow: 4px 4px 0 #000, -2px -2px 0 #fbd000;
+            margin-bottom: 30px;
+            animation: bounce 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .start-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            padding: 15px 30px;
+            background: linear-gradient(180deg, #e52521 0%, #c41e1a 100%);
+            color: #fff;
+            border: 4px solid #000;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #8b0000;
+            transition: all 0.1s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #8b0000;
+        }
+
+        .start-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #8b0000;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .final-score {
+            font-size: 24px;
+            color: #fbd000;
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* モバイル用タッチコントロール */
+        .touch-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .touch-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.3);
+            border: 3px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .touch-btn:active {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .direction-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 850px) {
+            .game-header {
+                width: 100%;
+                max-width: 400px;
+                font-size: 10px;
+            }
+
+            #gameCanvas {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+            }
+
+            .touch-controls {
+                display: flex;
+            }
+
+            .controls {
+                display: none;
+            }
+
+            .game-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="game-header">
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="score-label">SCORE</span>
+                    <span class="score-value" id="scoreDisplay">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">COINS</span>
+                    <span class="score-value">🪙 <span id="coinDisplay">0</span></span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">TIME</span>
+                    <span class="score-value" id="timeDisplay">300</span>
+                </div>
+            </div>
+            <div class="score-item">
+                <span class="score-label">WORLD</span>
+                <span class="score-value">1-1</span>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+        <div class="start-screen" id="startScreen">
+            <div class="game-title">🍄 スーパー<br>アライくん</div>
+            <button class="start-btn" id="startBtn">START</button>
+        </div>
+
+        <div class="game-over-screen hidden" id="gameOverScreen">
+            <div class="game-title">GAME OVER</div>
+            <div class="final-score">SCORE: <span id="finalScore">0</span></div>
+            <button class="start-btn" id="retryBtn">RETRY</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <p>← → : 移動 | SPACE / ↑ : ジャンプ</p>
+        <p>敵を踏んで倒せ！コインを集めろ！</p>
+    </div>
+
+    <div class="touch-controls">
+        <div class="direction-btns">
+            <button class="touch-btn" id="leftBtn">◀</button>
+            <button class="touch-btn" id="rightBtn">▶</button>
+        </div>
+        <button class="touch-btn" id="jumpBtn">⬆</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // ゲーム状態
+        let gameRunning = false;
+        let score = 0;
+        let coins = 0;
+        let time = 300;
+        let cameraX = 0;
+
+        // プレイヤー
+        const player = {
+            x: 100,
+            y: 300,
+            width: 32,
+            height: 40,
+            vx: 0,
+            vy: 0,
+            speed: 5,
+            jumpPower: -15,
+            grounded: false,
+            facing: 1,
+            frame: 0,
+            frameTimer: 0
+        };
+
+        // 物理定数
+        const GRAVITY = 0.8;
+        const GROUND_Y = 350;
+
+        // キー入力
+        const keys = {
+            left: false,
+            right: false,
+            jump: false
+        };
+
+        // プラットフォーム
+        let platforms = [];
+
+        // コイン
+        let coinList = [];
+
+        // 敵
+        let enemies = [];
+
+        // 雲（背景装飾）
+        let clouds = [];
+
+        // ブロック
+        let blocks = [];
+
+        // ゲーム初期化
+        function initGame() {
+            score = 0;
+            coins = 0;
+            time = 300;
+            cameraX = 0;
+
+            player.x = 100;
+            player.y = 300;
+            player.vx = 0;
+            player.vy = 0;
+            player.grounded = false;
+
+            // レベル生成
+            generateLevel();
+
+            updateDisplay();
+        }
+
+        // レベル生成
+        function generateLevel() {
+            platforms = [];
+            coinList = [];
+            enemies = [];
+            blocks = [];
+            clouds = [];
+
+            // 地面
+            for (let i = 0; i < 100; i++) {
+                // 穴を作る
+                if (i > 15 && i < 18) continue;
+                if (i > 35 && i < 38) continue;
+                if (i > 55 && i < 59) continue;
+
+                platforms.push({
+                    x: i * 50,
+                    y: GROUND_Y,
+                    width: 50,
+                    height: 50,
+                    type: 'ground'
+                });
+            }
+
+            // 浮遊プラットフォーム
+            const floatingPlatforms = [
+                { x: 300, y: 250 },
+                { x: 400, y: 250 },
+                { x: 500, y: 200 },
+                { x: 700, y: 280 },
+                { x: 850, y: 220 },
+                { x: 1000, y: 250 },
+                { x: 1100, y: 180 },
+                { x: 1300, y: 250 },
+                { x: 1500, y: 200 },
+                { x: 1700, y: 280 },
+                { x: 1900, y: 220 },
+                { x: 2100, y: 180 },
+                { x: 2300, y: 250 },
+                { x: 2500, y: 200 },
+                { x: 2700, y: 280 },
+            ];
+
+            floatingPlatforms.forEach(p => {
+                platforms.push({
+                    x: p.x,
+                    y: p.y,
+                    width: 100,
+                    height: 20,
+                    type: 'brick'
+                });
+            });
+
+            // ブロック（? ブロック）
+            const questionBlocks = [
+                { x: 350, y: 200 },
+                { x: 600, y: 150 },
+                { x: 950, y: 200 },
+                { x: 1200, y: 150 },
+                { x: 1600, y: 200 },
+                { x: 2000, y: 150 },
+                { x: 2400, y: 200 },
+            ];
+
+            questionBlocks.forEach(b => {
+                blocks.push({
+                    x: b.x,
+                    y: b.y,
+                    width: 40,
+                    height: 40,
+                    hit: false
+                });
+            });
+
+            // コイン配置
+            const coinPositions = [
+                { x: 250, y: 300 },
+                { x: 350, y: 200 },
+                { x: 450, y: 200 },
+                { x: 550, y: 150 },
+                { x: 750, y: 230 },
+                { x: 900, y: 170 },
+                { x: 1050, y: 200 },
+                { x: 1150, y: 130 },
+                { x: 1350, y: 200 },
+                { x: 1550, y: 150 },
+                { x: 1750, y: 230 },
+                { x: 1950, y: 170 },
+                { x: 2150, y: 130 },
+                { x: 2350, y: 200 },
+                { x: 2550, y: 150 },
+                { x: 2750, y: 230 },
+            ];
+
+            coinPositions.forEach(c => {
+                coinList.push({
+                    x: c.x,
+                    y: c.y,
+                    width: 25,
+                    height: 25,
+                    collected: false,
+                    bobOffset: Math.random() * Math.PI * 2
+                });
+            });
+
+            // 敵配置
+            const enemyPositions = [
+                { x: 500, y: GROUND_Y - 30 },
+                { x: 800, y: GROUND_Y - 30 },
+                { x: 1100, y: GROUND_Y - 30 },
+                { x: 1400, y: GROUND_Y - 30 },
+                { x: 1700, y: GROUND_Y - 30 },
+                { x: 2000, y: GROUND_Y - 30 },
+                { x: 2300, y: GROUND_Y - 30 },
+                { x: 2600, y: GROUND_Y - 30 },
+                { x: 2900, y: GROUND_Y - 30 },
+            ];
+
+            enemyPositions.forEach(e => {
+                enemies.push({
+                    x: e.x,
+                    y: e.y,
+                    width: 32,
+                    height: 30,
+                    vx: -1.5,
+                    alive: true,
+                    squished: false,
+                    squishTimer: 0
+                });
+            });
+
+            // 雲
+            for (let i = 0; i < 20; i++) {
+                clouds.push({
+                    x: i * 300 + Math.random() * 200,
+                    y: 30 + Math.random() * 80,
+                    width: 80 + Math.random() * 40,
+                    speed: 0.2 + Math.random() * 0.3
+                });
+            }
+        }
+
+        // 衝突判定
+        function checkCollision(a, b) {
+            return a.x < b.x + b.width &&
+                   a.x + a.width > b.x &&
+                   a.y < b.y + b.height &&
+                   a.y + a.height > b.y;
+        }
+
+        // プレイヤー更新
+        function updatePlayer() {
+            // 左右移動
+            if (keys.left) {
+                player.vx = -player.speed;
+                player.facing = -1;
+            } else if (keys.right) {
+                player.vx = player.speed;
+                player.facing = 1;
+            } else {
+                player.vx *= 0.8;
+            }
+
+            // ジャンプ
+            if (keys.jump && player.grounded) {
+                player.vy = player.jumpPower;
+                player.grounded = false;
+            }
+
+            // 重力
+            player.vy += GRAVITY;
+
+            // 位置更新
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // 床との衝突
+            player.grounded = false;
+
+            platforms.forEach(platform => {
+                if (checkCollision(player, platform)) {
+                    // 上から乗った
+                    if (player.vy > 0 && player.y + player.height - player.vy <= platform.y) {
+                        player.y = platform.y - player.height;
+                        player.vy = 0;
+                        player.grounded = true;
+                    }
+                    // 下から当たった
+                    else if (player.vy < 0 && player.y - player.vy >= platform.y + platform.height) {
+                        player.y = platform.y + platform.height;
+                        player.vy = 0;
+                    }
+                    // 横から当たった
+                    else {
+                        if (player.vx > 0) {
+                            player.x = platform.x - player.width;
+                        } else if (player.vx < 0) {
+                            player.x = platform.x + platform.width;
+                        }
+                    }
+                }
+            });
+
+            // ブロックとの衝突
+            blocks.forEach(block => {
+                if (checkCollision(player, block)) {
+                    // 下から叩いた
+                    if (player.vy < 0 && player.y >= block.y + block.height - 10) {
+                        player.y = block.y + block.height;
+                        player.vy = 0;
+                        if (!block.hit) {
+                            block.hit = true;
+                            coins++;
+                            score += 200;
+                            updateDisplay();
+                        }
+                    }
+                    // 上から乗った
+                    else if (player.vy > 0) {
+                        player.y = block.y - player.height;
+                        player.vy = 0;
+                        player.grounded = true;
+                    }
+                }
+            });
+
+            // 画面左端制限
+            if (player.x < cameraX) {
+                player.x = cameraX;
+            }
+
+            // 落下死
+            if (player.y > canvas.height + 50) {
+                gameOver();
+            }
+
+            // アニメーション
+            if (Math.abs(player.vx) > 0.5) {
+                player.frameTimer++;
+                if (player.frameTimer > 5) {
+                    player.frame = (player.frame + 1) % 4;
+                    player.frameTimer = 0;
+                }
+            } else {
+                player.frame = 0;
+            }
+        }
+
+        // 敵更新
+        function updateEnemies() {
+            enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+
+                if (enemy.squished) {
+                    enemy.squishTimer++;
+                    if (enemy.squishTimer > 30) {
+                        enemy.alive = false;
+                    }
+                    return;
+                }
+
+                enemy.x += enemy.vx;
+
+                // プラットフォームとの衝突で方向転換
+                platforms.forEach(platform => {
+                    if (enemy.x < platform.x - 100 || enemy.x > platform.x + platform.width + 100) return;
+
+                    if (checkCollision(enemy, platform)) {
+                        enemy.vx *= -1;
+                    }
+                });
+
+                // プレイヤーとの衝突
+                if (checkCollision(player, enemy)) {
+                    // 上から踏んだ
+                    if (player.vy > 0 && player.y + player.height - player.vy < enemy.y + 10) {
+                        enemy.squished = true;
+                        player.vy = -10;
+                        score += 100;
+                        updateDisplay();
+                    } else {
+                        // 横から当たった（ダメージ）
+                        gameOver();
+                    }
+                }
+            });
+        }
+
+        // コイン更新
+        function updateCoins() {
+            coinList.forEach(coin => {
+                if (coin.collected) return;
+
+                coin.bobOffset += 0.1;
+
+                if (checkCollision(player, coin)) {
+                    coin.collected = true;
+                    coins++;
+                    score += 100;
+                    updateDisplay();
+                }
+            });
+        }
+
+        // カメラ更新
+        function updateCamera() {
+            const targetX = player.x - canvas.width / 3;
+            if (targetX > cameraX) {
+                cameraX = targetX;
+            }
+        }
+
+        // 表示更新
+        function updateDisplay() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('coinDisplay').textContent = coins;
+            document.getElementById('timeDisplay').textContent = time;
+        }
+
+        // 描画
+        function draw() {
+            // 空
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#5c94fc');
+            gradient.addColorStop(1, '#87ceeb');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(-cameraX, 0);
+
+            // 雲（パララックス）
+            clouds.forEach(cloud => {
+                const cloudX = cloud.x - cameraX * 0.3;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.beginPath();
+                ctx.arc(cloudX, cloud.y, cloud.width / 3, 0, Math.PI * 2);
+                ctx.arc(cloudX + cloud.width / 3, cloud.y - 10, cloud.width / 2.5, 0, Math.PI * 2);
+                ctx.arc(cloudX + cloud.width / 1.5, cloud.y, cloud.width / 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // プラットフォーム
+            platforms.forEach(platform => {
+                if (platform.x + platform.width < cameraX - 50 || platform.x > cameraX + canvas.width + 50) return;
+
+                if (platform.type === 'ground') {
+                    // 地面
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+
+                    // 草
+                    ctx.fillStyle = '#228B22';
+                    ctx.fillRect(platform.x, platform.y, platform.width, 10);
+
+                    // テクスチャ
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(platform.x + 5, platform.y + 15, 15, 10);
+                    ctx.fillRect(platform.x + 30, platform.y + 30, 15, 10);
+                } else {
+                    // レンガ
+                    ctx.fillStyle = '#c84c0c';
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+
+                    ctx.strokeStyle = '#8b3208';
+                    ctx.lineWidth = 2;
+                    for (let i = 0; i < platform.width; i += 25) {
+                        ctx.strokeRect(platform.x + i, platform.y, 25, 10);
+                        ctx.strokeRect(platform.x + i + 12.5, platform.y + 10, 25, 10);
+                    }
+                }
+            });
+
+            // ブロック
+            blocks.forEach(block => {
+                if (block.x + block.width < cameraX - 50 || block.x > cameraX + canvas.width + 50) return;
+
+                if (block.hit) {
+                    ctx.fillStyle = '#8B4513';
+                } else {
+                    ctx.fillStyle = '#fbd000';
+                }
+                ctx.fillRect(block.x, block.y, block.width, block.height);
+
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(block.x, block.y, block.width, block.height);
+
+                if (!block.hit) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('?', block.x + block.width / 2, block.y + block.height / 2 + 7);
+                }
+            });
+
+            // コイン
+            coinList.forEach(coin => {
+                if (coin.collected) return;
+                if (coin.x + coin.width < cameraX - 50 || coin.x > cameraX + canvas.width + 50) return;
+
+                const bobY = coin.y + Math.sin(coin.bobOffset) * 5;
+
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(coin.x + coin.width / 2, bobY + coin.height / 2, coin.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffec8b';
+                ctx.beginPath();
+                ctx.arc(coin.x + coin.width / 2 - 3, bobY + coin.height / 2 - 3, coin.width / 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 敵
+            enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+                if (enemy.x + enemy.width < cameraX - 50 || enemy.x > cameraX + canvas.width + 50) return;
+
+                if (enemy.squished) {
+                    // 潰された状態
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(enemy.x, enemy.y + 20, enemy.width, 10);
+                } else {
+                    // クリボー風
+                    ctx.fillStyle = '#8B4513';
+                    ctx.beginPath();
+                    ctx.arc(enemy.x + enemy.width / 2, enemy.y + 10, 16, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // 体
+                    ctx.fillStyle = '#d2691e';
+                    ctx.fillRect(enemy.x + 4, enemy.y + 10, enemy.width - 8, 15);
+
+                    // 足
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(enemy.x + 2, enemy.y + 22, 10, 8);
+                    ctx.fillRect(enemy.x + enemy.width - 12, enemy.y + 22, 10, 8);
+
+                    // 目
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(enemy.x + 8, enemy.y + 5, 6, 8);
+                    ctx.fillRect(enemy.x + enemy.width - 14, enemy.y + 5, 6, 8);
+
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(enemy.x + 10, enemy.y + 8, 3, 4);
+                    ctx.fillRect(enemy.x + enemy.width - 12, enemy.y + 8, 3, 4);
+
+                    // 眉毛
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(enemy.x + 6, enemy.y + 3);
+                    ctx.lineTo(enemy.x + 16, enemy.y + 6);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(enemy.x + enemy.width - 6, enemy.y + 3);
+                    ctx.lineTo(enemy.x + enemy.width - 16, enemy.y + 6);
+                    ctx.stroke();
+                }
+            });
+
+            // プレイヤー
+            drawPlayer();
+
+            ctx.restore();
+        }
+
+        // プレイヤー描画
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            ctx.scale(player.facing, 1);
+            ctx.translate(-player.width / 2, -player.height / 2);
+
+            // 帽子
+            ctx.fillStyle = '#e52521';
+            ctx.fillRect(2, 0, 28, 8);
+            ctx.fillRect(0, 8, 20, 4);
+
+            // 顔
+            ctx.fillStyle = '#fdbf6f';
+            ctx.fillRect(4, 8, 24, 16);
+
+            // 髪
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(20, 10, 8, 8);
+
+            // 目
+            ctx.fillStyle = '#000';
+            ctx.fillRect(8, 12, 4, 4);
+
+            // 鼻
+            ctx.fillStyle = '#fdbf6f';
+            ctx.fillRect(16, 14, 8, 6);
+
+            // 髭
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(12, 20, 16, 4);
+
+            // 体
+            ctx.fillStyle = '#e52521';
+            ctx.fillRect(4, 24, 24, 8);
+
+            // オーバーオール
+            ctx.fillStyle = '#0000ff';
+            ctx.fillRect(6, 32, 20, 8);
+
+            // 腕
+            ctx.fillStyle = '#fdbf6f';
+            if (player.grounded && Math.abs(player.vx) > 0.5) {
+                // 走りアニメーション
+                const armOffset = player.frame % 2 === 0 ? 0 : -4;
+                ctx.fillRect(-2, 26 + armOffset, 6, 8);
+                ctx.fillRect(28, 26 - armOffset, 6, 8);
+            } else {
+                ctx.fillRect(0, 26, 4, 8);
+                ctx.fillRect(28, 26, 4, 8);
+            }
+
+            ctx.restore();
+        }
+
+        // ゲームオーバー
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+
+        // タイマー
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (gameRunning) {
+                    time--;
+                    updateDisplay();
+                    if (time <= 0) {
+                        gameOver();
+                    }
+                }
+            }, 1000);
+        }
+
+        // ゲームループ
+        function gameLoop() {
+            if (gameRunning) {
+                updatePlayer();
+                updateEnemies();
+                updateCoins();
+                updateCamera();
+            }
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ゲーム開始
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            initGame();
+            gameRunning = true;
+            startTimer();
+        }
+
+        // キーイベント
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                keys.jump = true;
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') keys.jump = false;
+        });
+
+        // タッチコントロール
+        document.getElementById('leftBtn').addEventListener('touchstart', (e) => { e.preventDefault(); keys.left = true; });
+        document.getElementById('leftBtn').addEventListener('touchend', () => keys.left = false);
+        document.getElementById('rightBtn').addEventListener('touchstart', (e) => { e.preventDefault(); keys.right = true; });
+        document.getElementById('rightBtn').addEventListener('touchend', () => keys.right = false);
+        document.getElementById('jumpBtn').addEventListener('touchstart', (e) => { e.preventDefault(); keys.jump = true; });
+        document.getElementById('jumpBtn').addEventListener('touchend', () => keys.jump = false);
+
+        // ボタンイベント
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('retryBtn').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            startGame();
+        });
+
+        // 初期描画
+        initGame();
+        gameLoop();
+    </script>
+</body>
+</html>

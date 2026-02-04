@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARAI SALES PRO - アタックリスト</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/attacklist.css">
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">ARAI <span>SALES PRO</span></div>
+    <nav class="header-nav">
+      <a href="dashboard.html" class="nav-link">📊 ダッシュボード</a>
+      <a href="index.html" class="nav-link">📝 活動記録</a>
+      <a href="attacklist.html" class="nav-link active">📋 アタックリスト</a>
+      <a href="promotion.html" class="nav-link">📧 販促資料</a>
+      <a href="analysis.html" class="nav-link">🔍 売上分析</a>
+    </nav>
+  </header>
+
+  <main class="main-container">
+    <!-- ヘッダーツールバー -->
+    <div class="attack-header">
+      <div class="attack-header-left">
+        <h1 class="attack-title">📋 アタックリスト</h1>
+        <div class="month-selector">
+          <button id="prevMonth" class="month-nav-btn">◀</button>
+          <span id="targetMonth" class="target-month"></span>
+          <button id="nextMonth" class="month-nav-btn">▶</button>
+        </div>
+      </div>
+      <div class="attack-header-right">
+        <div class="status-legend">
+          <span class="legend-item good">● 30日未満</span>
+          <span class="legend-item warning">● 30-60日</span>
+          <span class="legend-item distant">● 60日以上</span>
+        </div>
+        <div class="action-progress">
+          <span class="progress-label">進捗:</span>
+          <span id="progressCount" class="progress-count">0/0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- フィルターツールバー -->
+    <div class="filter-toolbar">
+      <div class="filter-group">
+        <label for="salesRepFilter">👤 担当者:</label>
+        <select id="salesRepFilter">
+          <option value="">全員</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="statusFilter">📋 ステータス:</label>
+        <select id="statusFilter">
+          <option value="">すべて</option>
+          <option value="pending">未着手</option>
+          <option value="in_progress">進行中</option>
+          <option value="completed">完了</option>
+          <option value="skip">スキップ</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="sortBy">ソート:</label>
+        <select id="sortBy">
+          <option value="daysSince">経過日数（多い順）</option>
+          <option value="daysSinceAsc">経過日数（少ない順）</option>
+          <option value="company">会社名順</option>
+          <option value="status">ステータス順</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- スプレッドシートへのリンク -->
+    <div class="sheet-link-banner">
+      <span>💡 アクション対象者の追加は</span>
+      <a href="https://docs.google.com/spreadsheets/d/1FcBvdskysuy59z8JhNSgrkN0WWdI7hM5sBtZpBn03ws/edit#gid=1230477716"
+        target="_blank" class="sheet-link">
+        📊 スプレッドシート（アクションリスト）
+      </a>
+      <span>で行ってください</span>
+    </div>
+
+    <!-- アクションリストテーブル -->
+    <div class="table-container">
+      <table class="contacts-table action-table">
+        <thead>
+          <tr>
+            <th class="col-company">会社名</th>
+            <th class="col-dept">部署</th>
+            <th class="col-contact">担当者</th>
+            <th class="col-lastvisit">最終訪問</th>
+            <th class="col-days">経過</th>
+            <th class="col-rep">営業担当</th>
+            <th class="col-tel">電話</th>
+            <th class="col-status">ステータス</th>
+            <th class="col-action">操作</th>
+          </tr>
+        </thead>
+        <tbody id="actionListTableBody">
+          <tr>
+            <td colspan="9" class="loading">読み込み中...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 空の場合の案内 -->
+    <div id="emptyGuide" class="empty-guide hidden">
+      <div class="empty-icon">📋</div>
+      <h3>アクションリストが空です</h3>
+      <p>スプレッドシートの「アクションリスト」シートに対象者を追加してください</p>
+      <a href="https://docs.google.com/spreadsheets/d/1FcBvdskysuy59z8JhNSgrkN0WWdI7hM5sBtZpBn03ws/edit#gid=1230477716"
+        target="_blank" class="open-sheet-btn">
+        📊 スプレッドシートを開く
+      </a>
+    </div>
+  </main>
+
+  <!-- Toast通知 -->
+  <div id="toast" class="toast"></div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/attacklist.js"></script>
+</body>
+
+</html>

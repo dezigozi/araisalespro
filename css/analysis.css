@@ -1,0 +1,333 @@
+/* ========================================
+   売上分析ページ専用スタイル
+   ======================================== */
+
+/* メインコンテナを縦並びに（style.cssのgridを上書き） */
+.main-container {
+    display: block !important;
+    grid-template-columns: none !important;
+}
+
+/* カード形式（スマホ用） */
+.summary-card,
+.detail-card {
+    background: linear-gradient(135deg, rgba(55, 65, 81, 0.9) 0%, rgba(31, 41, 55, 0.9) 100%);
+    border: 1px solid rgba(75, 85, 99, 0.5);
+    border-radius: 12px;
+    padding: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover,
+.detail-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card.clickable,
+.detail-card.clickable {
+    cursor: pointer;
+    border-left: 4px solid #3b82f6;
+}
+
+.summary-card.clickable:hover,
+.detail-card.clickable:hover {
+    border-left-color: #60a5fa;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(31, 41, 55, 0.9) 100%);
+}
+
+.card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.card-row:not(:last-child) {
+    border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+.card-label {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-value {
+    font-weight: 600;
+    color: #f3f4f6;
+}
+
+.card-value.highlight {
+    color: #34d399;
+    font-size: 1.1rem;
+}
+
+.card-value.client-name {
+    color: #60a5fa;
+    font-size: 1rem;
+}
+
+/* テーブル行のクリック可能スタイル */
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
+.clickable-row td:first-child {
+    position: relative;
+}
+
+.clickable-row td:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #3b82f6;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.clickable-row:hover td:first-child::before {
+    opacity: 1;
+}
+
+/* ソートアイコン */
+.sort-icon {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-left: 4px;
+}
+
+th.sorted-asc .sort-icon::after {
+    content: '↑';
+}
+
+th.sorted-desc .sort-icon::after {
+    content: '↓';
+}
+
+th.sorted-asc .sort-icon,
+th.sorted-desc .sort-icon {
+    color: #3b82f6;
+}
+
+/* ローディングアニメーション */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #3b82f6;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* トースト通知の表示状態 */
+#toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+#toast.success {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#toast.error {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+#toast.info {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* キャッシュステータスバッジ */
+.cache-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.cache-badge.fresh {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.cache-badge.stale {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.cache-badge.none {
+    background: rgba(107, 114, 128, 0.2);
+    color: #9ca3af;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+/* 金額のフォーマット */
+.amount {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    color: #34d399;
+}
+
+.amount.negative {
+    color: #f87171;
+}
+
+/* PDF出力時のスタイル調整 */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+
+    .header,
+    .filter-section,
+    .export-btn,
+    #backToSummaryBtn,
+    #toast {
+        display: none !important;
+    }
+
+    .card {
+        background: white;
+        box-shadow: none;
+        border: 1px solid #e5e7eb;
+    }
+
+    table {
+        display: table !important;
+    }
+
+    .md\\:hidden {
+        display: none !important;
+    }
+
+    th,
+    td {
+        color: black;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+        background: #f3f4f6;
+    }
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+    .filter-section .grid {
+        gap: 12px;
+    }
+
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+}
+
+/* フィルターグループ */
+.filter-group {
+    min-width: 140px;
+}
+
+/* 顧客名オートコンプリート */
+.client-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    margin-top: 4px;
+}
+
+.client-suggestions.hidden {
+    display: none;
+}
+
+.client-suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+.client-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.client-suggestion-item:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.client-suggestion-item.selected {
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.client-suggestion-name {
+    font-weight: 600;
+    color: #f3f4f6;
+}
+
+.client-suggestion-info {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.client-suggestion-count {
+    font-size: 0.7rem;
+    color: #60a5fa;
+    margin-left: 8px;
+}
+
+/* ヘッダー顧客名表示 */
+.header-customer-name {
+    margin-left: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+    border: 1px solid rgba(99, 102, 241, 0.5);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #c4b5fd;
+}
+
+.header-customer-name:empty {
+    display: none;
+}

@@ -1,0 +1,548 @@
+/* ========================================
+   Performance Page Styles
+   ======================================== */
+
+.performance-container {
+  display: block;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* ========================================
+   Filter Section
+   ======================================== */
+.filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.action-btn.secondary {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.action-btn.secondary:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+/* ========================================
+   Results Section
+   ======================================== */
+.results-section .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.results-section .card-header .card-title {
+  margin-bottom: 0;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.export-btn {
+  padding: 0.5rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.export-btn:hover {
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+/* ========================================
+   Table Styles
+   ======================================== */
+.table-container {
+  overflow-x: auto;
+  margin: 0 -1.25rem;
+  padding: 0 1.25rem;
+}
+
+.performance-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.performance-table th,
+.performance-table td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.performance-table th {
+  background: var(--bg-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+
+.performance-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.performance-table th.sortable:hover {
+  color: var(--accent-blue);
+}
+
+.performance-table th.sortable.asc .sort-icon,
+.performance-table th.sortable.desc .sort-icon {
+  color: var(--accent-blue);
+}
+
+.performance-table th.sortable.asc .sort-icon::after {
+  content: '↑';
+}
+
+.performance-table th.sortable.desc .sort-icon::after {
+  content: '↓';
+}
+
+.sort-icon {
+  margin-left: 0.25rem;
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.performance-table th.number,
+.performance-table td.number {
+  text-align: right;
+}
+
+.performance-table tbody tr {
+  transition: background 0.2s;
+}
+
+.performance-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.performance-table td {
+  font-size: 0.9rem;
+}
+
+.performance-table td.number {
+  font-family: 'Outfit', monospace;
+  font-weight: 500;
+}
+
+/* Footer Row (Total) */
+.performance-table tfoot td {
+  background: var(--bg-secondary);
+  font-weight: 700;
+  border-top: 2px solid var(--accent-red);
+}
+
+/* Empty State */
+.empty-row td {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 3rem 1rem;
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .header,
+  .filter-section,
+  .export-buttons,
+  .toast,
+  .auth-overlay {
+    display: none !important;
+  }
+
+  .performance-container {
+    padding: 0;
+    max-width: none;
+  }
+
+  .card {
+    box-shadow: none;
+    background: white;
+    padding: 0;
+  }
+
+  .performance-table th,
+  .performance-table td {
+    border: 1px solid #ccc;
+    color: black;
+  }
+
+  .performance-table th {
+    background: #f0f0f0;
+  }
+
+  .performance-table tbody tr:hover {
+    background: transparent;
+  }
+
+  .card-title::before {
+    display: none;
+  }
+
+  .sort-icon {
+    display: none;
+  }
+
+  /* モーダル印刷用 */
+  .modal.print-mode {
+    display: block !important;
+    position: static;
+    background: white;
+    padding: 0;
+  }
+
+  .modal.print-mode .modal-content {
+    max-width: none;
+    max-height: none;
+    box-shadow: none;
+    background: white;
+    border-radius: 0;
+  }
+
+  .modal.print-mode .modal-tabs,
+  .modal.print-mode .modal-actions,
+  .modal.print-mode .modal-close {
+    display: none !important;
+  }
+
+  .modal.print-mode .modal-header {
+    border-bottom: 2px solid #000;
+    padding: 1rem 0;
+  }
+
+  .modal.print-mode .modal-header h3 {
+    color: black;
+    font-size: 1.2rem;
+  }
+
+  .modal.print-mode .modal-body {
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .modal.print-mode .modal-tab-content {
+    display: block !important;
+    margin-bottom: 2rem;
+    page-break-inside: avoid;
+  }
+
+  .modal.print-mode .modal-tab-content::before {
+    content: attr(data-title);
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: black;
+  }
+
+  .modal.print-mode #tab-navi::before {
+    content: '■ ナビ';
+  }
+
+  .modal.print-mode #tab-dorare::before {
+    content: '■ ドラレコ';
+  }
+
+  .modal.print-mode #tab-vehicle::before {
+    content: '■ 車種';
+  }
+
+  .modal.print-mode .detail-table th,
+  .modal.print-mode .detail-table td {
+    border: 1px solid #ccc;
+    color: black;
+    padding: 0.5rem;
+  }
+
+  .modal.print-mode .detail-table th {
+    background: #f0f0f0;
+  }
+
+  /* モーダル表示時は他を隠す */
+  .modal.print-mode~.main-container,
+  .modal.print-mode~.results-section {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   Loading State
+   ======================================== */
+.loading-small {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+@media (max-width: 768px) {
+  .performance-container {
+    padding: 1rem;
+  }
+
+  .results-section .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .export-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ========================================
+   Modal Styles
+   ======================================== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content.modal-large {
+  max-width: 1000px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--accent-red);
+}
+
+/* Modal Tabs */
+.modal-tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-tab {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  position: relative;
+}
+
+.modal-tab:hover {
+  color: var(--text-primary);
+}
+
+.modal-tab.active {
+  color: var(--accent-blue);
+}
+
+.modal-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-blue);
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 1.25rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modal-tab-content {
+  display: none;
+}
+
+.modal-tab-content.active {
+  display: block;
+}
+
+/* Detail Table */
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detail-table th,
+.detail-table td {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.detail-table th {
+  background: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.detail-table th.number,
+.detail-table td.number {
+  text-align: right;
+}
+
+.detail-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Clickable rep name */
+.clickable-rep {
+  color: var(--accent-blue);
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.clickable-rep:hover {
+  color: var(--accent-purple);
+}

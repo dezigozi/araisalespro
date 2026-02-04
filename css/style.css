@@ -1,0 +1,1736 @@
+:root {
+  --bg-primary: #0f1419;
+  --bg-secondary: #1a1f26;
+  --bg-card: #232b35;
+  --text-primary: #f5f5f5;
+  --text-secondary: #9ca3af;
+  --accent-red: #ef4444;
+  --accent-orange: #f97316;
+  --accent-yellow: #eab308;
+  --accent-green: #22c55e;
+  --accent-blue: #3b82f6;
+  --accent-purple: #a855f7;
+  --border-color: #374151;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+.header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.logo span {
+  color: var(--accent-red);
+}
+
+.page-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Header Navigation */
+.header-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  padding: 0.5rem 0.875rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.nav-link.active {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+  color: white;
+}
+
+/* ========================================
+   Sales Rep Selector
+   ======================================== */
+.sales-rep-selector {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(239, 68, 68, 0.1) 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+}
+
+.sales-rep-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sales-rep-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.sales-rep-select {
+  flex: 1;
+  max-width: 300px;
+  padding: 0.625rem 2.5rem 0.625rem 1rem;
+  background: var(--bg-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 18px;
+  border: 2px solid var(--accent-red);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.sales-rep-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+.sales-rep-select:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* ========================================
+   Tab Navigation (Mobile)
+   ======================================== */
+.tab-nav {
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.875rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  font-family: inherit;
+}
+
+.tab-btn.active {
+  color: var(--accent-red);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-red);
+}
+
+/* ========================================
+   Tab Content
+   ======================================== */
+.tab-content {
+  display: none;
+  padding: 1rem;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ========================================
+   Card
+   ======================================== */
+.card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-title::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  background: var(--accent-red);
+  border-radius: 2px;
+}
+
+/* Card Header with Refresh Button */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-header .card-title {
+  margin-bottom: 0;
+}
+
+/* Refresh Button */
+.refresh-btn {
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.refresh-btn:hover {
+  background: var(--bg-primary);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Form Styles
+   ======================================== */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.form-select,
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 20px;
+  padding-right: 2.5rem;
+}
+
+.form-select:focus,
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* ========================================
+   Approach Buttons (訪問/電話/メール)
+   ======================================== */
+.approach-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.approach-btn {
+  padding: 0.75rem 0.5rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.approach-btn.active {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.approach-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.approach-btn span {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ========================================
+   Met Buttons (会えた？)
+   ======================================== */
+.met-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.met-btn {
+  padding: 0.875rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.met-btn.yes.active {
+  border-color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.met-btn.triangle.active {
+  border-color: var(--accent-yellow);
+  background: rgba(234, 179, 8, 0.15);
+}
+
+.met-btn.no.active {
+  border-color: var(--accent-orange);
+  background: rgba(249, 115, 22, 0.15);
+}
+
+.met-btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.met-btn.yes svg {
+  color: var(--accent-blue);
+}
+
+.met-btn.triangle svg {
+  color: var(--accent-yellow);
+}
+
+.met-btn.no svg {
+  color: var(--accent-orange);
+}
+
+/* ========================================
+   Reaction Buttons (相手の反応)
+   ======================================== */
+.reaction-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.reaction-btn {
+  padding: 0.625rem 0.5rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+}
+
+.reaction-btn .emoji {
+  font-size: 1.25rem;
+}
+
+.reaction-btn.active.good {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.reaction-btn.active.normal {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: var(--accent-yellow);
+  color: var(--accent-yellow);
+}
+
+.reaction-btn.active.bad {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+/* ========================================
+   Submit Button
+   ======================================== */
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--accent-red) 0%, #dc2626 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 0.5rem;
+  font-family: inherit;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Activity List
+   ======================================== */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activity-item {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.activity-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.activity-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.activity-type {
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.activity-type.visit {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--accent-green);
+}
+
+.activity-type.phone {
+  background: rgba(249, 115, 22, 0.2);
+  color: var(--accent-orange);
+}
+
+.activity-type.email {
+  background: rgba(168, 85, 247, 0.2);
+  color: var(--accent-purple);
+}
+
+.activity-reaction {
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.activity-reaction.good {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--accent-green);
+}
+
+.activity-reaction.normal {
+  background: rgba(234, 179, 8, 0.2);
+  color: var(--accent-yellow);
+}
+
+.activity-reaction.bad {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--accent-red);
+}
+
+.activity-company {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.activity-contact {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.activity-sales-rep {
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-blue);
+}
+
+.activity-note {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  line-height: 1.5;
+}
+
+/* ========================================
+   History Filter
+   ======================================== */
+.history-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.filter-select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.25rem center;
+  background-size: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* ========================================
+   Loading & Empty State
+   ======================================== */
+.loading,
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   Toast Notification
+   ======================================== */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1rem;
+  right: 1rem;
+  padding: 1rem;
+  background: var(--accent-green);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  text-align: center;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 1000;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast.error {
+  background: var(--accent-red);
+}
+
+/* ========================================
+   Desktop Styles (768px+)
+   ======================================== */
+@media (min-width: 768px) {
+  .header {
+    padding: 1rem 2rem;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.1rem;
+  }
+
+  .tab-nav {
+    display: none;
+  }
+
+  .tab-content {
+    display: block !important;
+    padding: 0;
+  }
+
+  .main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .approach-btn svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .approach-btn span {
+    font-size: 0.85rem;
+  }
+
+  .met-btn svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .reaction-btn {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .reaction-btn .emoji {
+    font-size: 1.5rem;
+  }
+
+  .toast {
+    left: auto;
+    right: 2rem;
+    max-width: 300px;
+  }
+}
+
+/* ========================================
+   Authentication Overlay
+   ======================================== */
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.auth-box {
+  background: var(--bg-card);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.auth-logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.auth-logo span {
+  color: var(--accent-red);
+}
+
+.auth-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--accent-red);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.auth-input::placeholder {
+  letter-spacing: normal;
+  font-size: 0.95rem;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--accent-red) 0%, #dc2626 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.auth-error {
+  color: var(--accent-red);
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  display: none;
+}
+
+.auth-error.show {
+  display: block;
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-8px);
+  }
+
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+/* ========================================
+   Proposal Products (提案商品)
+   ======================================== */
+.proposal-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.proposal-products .loading-small {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.proposal-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.proposal-item:hover {
+  border-color: var(--accent-blue);
+}
+
+.proposal-item.checked {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--accent-blue);
+}
+
+.proposal-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-blue);
+  cursor: pointer;
+}
+
+.proposal-item label {
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.proposal-other {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.proposal-other-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.proposal-other-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-purple);
+  cursor: pointer;
+}
+
+.proposal-other-input {
+  flex: 1;
+  max-width: 200px;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.proposal-other-input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+}
+
+.proposal-other-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.no-proposals {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+/* ========================================
+   Visit Calendar (訪問予定カレンダー)
+   ======================================== */
+
+/* モバイル対応 */
+.visit-calendar-section {
+  display: block;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .visit-calendar-section {
+    padding: 1.5rem 2rem 0;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+.visit-calendar-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 0.75rem;
+  box-shadow: var(--shadow);
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .visit-calendar-card {
+    padding: 1.25rem;
+  }
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calendar-nav-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-nav-btn:hover {
+  background: var(--bg-primary);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.current-month {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Time Slot Toolbar */
+.time-slot-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .time-slot-toolbar {
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+  }
+}
+
+.toolbar-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.time-slot-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.time-slot-option input[type="radio"] {
+  display: none;
+}
+
+.time-slot-option .slot-badge {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.time-slot-option input[type="radio"]:checked+.slot-badge {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.slot-allday {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.slot-am {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
+.slot-pm {
+  background: rgba(249, 115, 22, 0.2);
+  color: var(--accent-orange);
+  border-color: var(--accent-orange);
+}
+
+.save-schedule-btn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--accent-green) 0%, #16a34a 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.save-schedule-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.save-schedule-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-primary);
+}
+
+/* Calendar Matrix */
+.calendar-matrix {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: center;
+}
+
+.calendar-table {
+  width: auto;
+  border-collapse: separate;
+  border-spacing: 1px;
+  min-width: 600px;
+}
+
+@media (min-width: 768px) {
+  .calendar-table {
+    border-spacing: 2px;
+    min-width: 900px;
+  }
+}
+
+.calendar-table th,
+.calendar-table td {
+  padding: 0.4rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.rep-header {
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  min-width: 60px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.date-header {
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  min-width: 48px;
+  padding: 0.3rem 0.25rem;
+}
+
+.date-header .day-name {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.date-header .day-num {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.date-header.saturday .day-name,
+.date-header.saturday .day-num {
+  color: var(--accent-blue);
+}
+
+.date-header.sunday .day-name,
+.date-header.sunday .day-num {
+  color: var(--accent-red);
+}
+
+.rep-name {
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+/* Schedule Cells */
+.schedule-cell {
+  background: var(--bg-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  min-height: 42px;
+}
+
+.schedule-cell:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.schedule-cell.selected {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: -2px;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.schedule-cell.saturday-cell {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.schedule-cell.sunday-cell {
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* Time Slot Colors on Cells */
+.schedule-cell.slot-allday {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.schedule-cell.slot-am {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.schedule-cell.slot-pm {
+  background: rgba(249, 115, 22, 0.15);
+}
+
+/* Cell Content */
+.cell-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+}
+
+.destination-input {
+  width: 100%;
+  max-width: 70px;
+  padding: 2px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: var(--text-primary);
+  font-size: 0.7rem;
+  font-family: inherit;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.destination-input:focus {
+  outline: none;
+  border-bottom-color: var(--accent-blue);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.destination-input::placeholder {
+  color: transparent;
+}
+
+.time-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.time-badge.slot-allday {
+  background: var(--accent-green);
+  color: white;
+}
+
+.time-badge.slot-am {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.time-badge.slot-pm {
+  background: var(--accent-orange);
+  color: white;
+}
+
+/* ========================================
+   Contact Select Wrapper with Add Button
+   ======================================== */
+.contact-select-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.contact-select-wrapper .form-select {
+  flex: 1;
+}
+
+.add-contact-btn {
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  color: var(--accent-green);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.add-contact-btn:hover:not(:disabled) {
+  border-color: var(--accent-green);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.add-contact-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Modal Dialog
+   ======================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: var(--accent-red);
+  color: white;
+}
+
+.modal-body {
+  padding: 1.25rem;
+}
+
+.modal-note {
+  font-size: 0.85rem;
+  color: var(--accent-yellow);
+  background: rgba(234, 179, 8, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 3px solid var(--accent-yellow);
+}
+
+.modal-info {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.modal-info strong {
+  color: var(--text-primary);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-secondary {
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-primary);
+  border-color: var(--text-secondary);
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, var(--accent-green) 0%, #16a34a 100%);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========================================
+   Contact Multi-Select Checkbox List
+   ======================================== */
+.contact-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contact-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.contact-search-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.contact-search-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.contact-checkbox-list {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.contact-checkbox-list.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.contact-placeholder {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.contact-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.contact-checkbox-item:hover {
+  background: var(--bg-card);
+}
+
+.contact-checkbox-item.checked {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.contact-checkbox-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  accent-color: var(--accent-blue);
+  cursor: pointer;
+}
+
+.contact-checkbox-item label {
+  flex: 1;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.contact-checkbox-item.hidden {
+  display: none;
+}
+
+.add-contact-btn {
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  color: var(--accent-green);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.add-contact-btn:hover:not(:disabled) {
+  border-color: var(--accent-green);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.add-contact-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Activity Actions (編集・削除ボタン)
+   ======================================== */
+.activity-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.action-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.action-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.action-btn.edit-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.action-btn.delete-btn:hover {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ========================================
+   Large Modal (編集モーダル)
+   ======================================== */
+.modal-large {
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-large .modal-body {
+  padding: 1rem 1.5rem;
+}
+
+.modal-large .form-group {
+  margin-bottom: 1rem;
+}
+
+.modal-large .approach-types,
+.modal-large .met-buttons,
+.modal-large .reaction-buttons {
+  gap: 0.4rem;
+}
+
+.modal-large .approach-btn,
+.modal-large .met-btn,
+.modal-large .reaction-btn {
+  padding: 0.5rem 0.4rem;
+}
+
+.modal-large .approach-btn svg,
+.modal-large .met-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modal-large .reaction-btn .emoji {
+  font-size: 1.1rem;
+}
+
+.modal-large .form-input[readonly] {
+  background: var(--bg-primary);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Radio Button List (編集モーダル担当者選択)
+   ======================================== */
+.contact-radio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.contact-radio-item:hover {
+  background: var(--bg-card);
+}
+
+.contact-radio-item.selected {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.contact-radio-item input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  accent-color: var(--accent-blue);
+  cursor: pointer;
+}
+
+.contact-radio-item label {
+  flex: 1;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.contact-radio-item.hidden {
+  display: none;
+}
