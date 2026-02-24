@@ -520,19 +520,21 @@ function populateFilters() {
 
     // 開始年月プルダウン
     const startYMSelect = document.getElementById('startYearMonth');
-    startYMSelect.innerHTML = '<option value="">すべて</option>';
+    let startYMOpts = '<option value="">すべて</option>';
     yearMonths.forEach(ym => {
         const displayYM = ym.replace('/', '年') + '月';
-        startYMSelect.innerHTML += `<option value="${ym}">${displayYM}</option>`;
+        startYMOpts += `<option value="${ym}">${displayYM}</option>`;
     });
+    startYMSelect.innerHTML = startYMOpts;
 
     // 終了年月プルダウン（デフォルトで最新を選択）
     const endYMSelect = document.getElementById('endYearMonth');
-    endYMSelect.innerHTML = '<option value="">すべて</option>';
+    let endYMOpts = '<option value="">すべて</option>';
     yearMonths.forEach(ym => {
         const displayYM = ym.replace('/', '年') + '月';
-        endYMSelect.innerHTML += `<option value="${ym}">${displayYM}</option>`;
+        endYMOpts += `<option value="${ym}">${displayYM}</option>`;
     });
+    endYMSelect.innerHTML = endYMOpts;
     // 最新の年月をデフォルト選択
     if (yearMonths.length > 0) {
         endYMSelect.value = yearMonths[0];
@@ -541,10 +543,11 @@ function populateFilters() {
     // 略称の重複を除いたリスト
     const abbrs = [...new Set(allData.map(d => d.abbr).filter(Boolean))].sort();
     const abbrSelect = document.getElementById('abbrFilter');
-    abbrSelect.innerHTML = '<option value="">すべて</option>';
+    let abbrOpts = '<option value="">すべて</option>';
     abbrs.forEach(abbr => {
-        abbrSelect.innerHTML += `<option value="${abbr}">${abbr}</option>`;
+        abbrOpts += `<option value="${abbr}">${abbr}</option>`;
     });
+    abbrSelect.innerHTML = abbrOpts;
 
     // 部店: 顧客マスタの順序を使用（データに存在するもののみ）
     const dataBranches = new Set(allData.map(d => d.branch).filter(Boolean));
@@ -556,10 +559,11 @@ function populateFilters() {
         }
     });
     const branchSelect = document.getElementById('branchFilter');
-    branchSelect.innerHTML = '<option value="">すべて</option>';
+    let branchOpts = '<option value="">すべて</option>';
     orderedBranches.forEach(branch => {
-        branchSelect.innerHTML += `<option value="${branch}">${branch}</option>`;
+        branchOpts += `<option value="${branch}">${branch}</option>`;
     });
+    branchSelect.innerHTML = branchOpts;
 }
 
 function onAbbrChange() {
@@ -587,10 +591,11 @@ function onAbbrChange() {
         }
     });
 
-    branchSelect.innerHTML = '<option value="">すべて</option>';
+    let branchOpts = '<option value="">すべて</option>';
     orderedBranches.forEach(branch => {
-        branchSelect.innerHTML += `<option value="${branch}">${branch}</option>`;
+        branchOpts += `<option value="${branch}">${branch}</option>`;
     });
+    branchSelect.innerHTML = branchOpts;
 }
 
 function clearFilters() {
@@ -608,10 +613,11 @@ function clearFilters() {
         }
     });
     const branchSelect = document.getElementById('branchFilter');
-    branchSelect.innerHTML = '<option value="">すべて</option>';
+    let branchOpts = '<option value="">すべて</option>';
     orderedBranches.forEach(branch => {
-        branchSelect.innerHTML += `<option value="${branch}">${branch}</option>`;
+        branchOpts += `<option value="${branch}">${branch}</option>`;
     });
+    branchSelect.innerHTML = branchOpts;
 
     // 顧客名検索をクリア
     const clientSearchInput = document.getElementById('clientNameSearch');
