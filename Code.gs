@@ -58,6 +58,9 @@ function doGet(e) {
         case 'getSalesAnalysisData':
             result = getSalesAnalysisData();
             break;
+        case 'getOrderAnalysisData':
+            result = getOrderAnalysisData(e.parameter.offset, e.parameter.limit);
+            break;
         case 'getSheetLastModified':
             result = getSheetLastModified();
             break;
@@ -1427,4 +1430,105 @@ function setupDailyBackupTriggers() {
 function testBackupEmail() {
     dailyBackupToExcel();
     SpreadsheetApp.getUi().alert(`テストメールを ${BACKUP_EMAIL_RECIPIENT} に送信しました。\n受信を確認してください。`);
+}
+
+// ========================================
+// 受注分析用データ取得（チャンク取得 ＆ 必要列のみ取得で高速化）
+// ========================================
+function getOrderAnalysisData(offsetStr, limitStr) {
+    try {
+        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const sheet = ss.getSheetByName('受注実績マスタ'); // 受注データシート名にあわせる
+
+        if (!sheet) {
+            return { success: false, error: '受注実績マスタシートが見つかりません' };
+        }
+
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) {
+            return { success: true, data: [], total: 0 };
+        }
+
+        const numRows = lastRow - 1; // ヘッダー除く
+        const totalRows = numRows;
+
+        // パラメータを数値化（指定がない場合は全件取得の挙動）
+        const offset = offsetStr ? parseInt(offsetStr, 10) : 0;
+        const limit = limitStr ? parseInt(limitStr, 10) : totalRows;
+
+        // オフセットがデータ範囲を超えている場合
+        if (offset >= totalRows) {
+            return { success: true, data: [], total: totalRows };
+        }
+
+        // このチャンクで取得する行数を計算
+        const fetchRows = Math.min(limit, totalRows - offset);
+        
+        // シートから取得する行はヘッダー分(+1)とoffset分をずらす
+        const startRow = 2 + offset;
+
+        // ※ 実際のシートの列構成に合わせて調整が必要です。
+        // ここでは見積実績マスタとあわせた例としています（J,K,L,U,V,W,X,Z,AA,AD,AE,AF列）
+        // 受注実績マスタの列構成が異なる場合は、列インデックス(getRangeの第2引数)を変更してください。
+
+        // J列(10): 得意先名, K列(11): 担当者名, L列(12): 顧客名
+        const rangeJL = sheet.getRange(startRow, 10, fetchRows, 3).getValues();
+        
+        // U列(21): 品番, V列(22): 商品名, W列(23): 数量, X列(24): 単価
+        const rangeUX = sheet.getRange(startRow, 21, fetchRows, 4).getValues();
+        
+        // Z列(26): 税抜合計
+        const rangeZ = sheet.getRange(startRow, 26, fetchRows, 1).getValues();
+        
+        // AA列(27): 登録日
+        const rangeAA = sheet.getRange(startRow, 27, fetchRows, 1).getValues();
+        
+        // AD列(30): 略称, AE列(31): 部店, AF列(32): 本社
+        const rangeADAF = sheet.getRange(startRow, 30, fetchRows, 3).getValues();
+
+        const result = [];
+
+        for (let i = 0; i < fetchRows; i++) {
+            // 登録日から年月を抽出
+            let registYearMonth = '';
+            const registDate = rangeAA[i][0];
+            if (registDate instanceof Date) {
+                const y = registDate.getFullYear();
+                const m = registDate.getMonth() + 1;
+                registYearMonth = `${y}/${m < 10 ? '0' + m : m}`;
+            } else if (registDate) {
+                const dateStr = String(registDate);
+                const parts = dateStr.split(/[\/\-]/);
+                if (parts.length >= 2) {
+                    const y = parts[0];
+                    const m = parts[1].padStart(2, '0');
+                    registYearMonth = `${y}/${m}`;
+                }
+            }
+            
+            result.push({
+                customerName: rangeJL[i][0] || '',
+                repName: rangeJL[i][1] || '',
+                clientName: rangeJL[i][2] || '',
+                productCode: rangeUX[i][0] || '',
+                productName: rangeUX[i][1] || '',
+                quantity: Number(rangeUX[i][2]) || 0,
+                unitPrice: Number(rangeUX[i][3]) || 0,
+                total: Number(rangeZ[i][0]) || 0,
+                registYearMonth: registYearMonth,
+                abbr: rangeADAF[i][0] || '',
+                branch: rangeADAF[i][1] || '',
+                hqFlag: rangeADAF[i][2] === '●'
+            });
+        }
+
+        return { 
+            success: true, 
+            data: result,
+            total: totalRows
+        };
+
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
 }
