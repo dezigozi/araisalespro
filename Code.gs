@@ -13,6 +13,68 @@ function getDailyReportSpreadsheet() {
     return SpreadsheetApp.openById(DAILY_REPORT_SPREADSHEET_ID);
 }
 
+// ========================================
+// 【初回のみ手動実行】営業日報シート初期設定
+// GASエディタで setupDailyReportSheet を選択して▶実行
+// ========================================
+function setupDailyReportSheet() {
+    var ss = getDailyReportSpreadsheet();
+    var sheetName = '営業日報';
+    var sheet = ss.getSheetByName(sheetName);
+
+    // なければ作成
+    if (!sheet) {
+        sheet = ss.insertSheet(sheetName);
+        Logger.log('✅ シート「営業日報」を新規作成しました');
+    } else {
+        Logger.log('ℹ️ シート「営業日報」は既に存在します。書式を更新します');
+    }
+
+    // ヘッダー行が空なら設定
+    var firstCell = sheet.getRange('A1').getValue();
+    if (!firstCell) {
+        sheet.getRange('A1:D1').setValues([['年月日', '営業担当者', '作業時間', '項目']]);
+        Logger.log('✅ ヘッダー行を設定しました');
+    }
+
+    // ---- 書式設定 ----
+
+    // ヘッダー行: 背景色・文字色・太字
+    var headerRange = sheet.getRange('A1:D1');
+    headerRange.setBackground('#1a237e');
+    headerRange.setFontColor('#ffffff');
+    headerRange.setFontWeight('bold');
+    headerRange.setFontSize(11);
+    headerRange.setHorizontalAlignment('center');
+
+    // 列幅
+    sheet.setColumnWidth(1, 120);  // A: 年月日
+    sheet.setColumnWidth(2, 110);  // B: 営業担当者
+    sheet.setColumnWidth(3, 80);   // C: 作業時間
+    sheet.setColumnWidth(4, 600);  // D: 項目
+
+    // 1行目を固定
+    sheet.setFrozenRows(1);
+
+    // C列（作業時間）に入力規則 AM/PM
+    var timeRule = SpreadsheetApp.newDataValidation()
+        .requireValueInList(['AM', 'PM'], true)
+        .setAllowInvalid(false)
+        .build();
+    sheet.getRange('C2:C1000').setDataValidation(timeRule);
+
+    // A列（日付）の書式
+    sheet.getRange('A2:A1000').setNumberFormat('yyyy/MM/dd');
+
+    // D列（項目）折り返し
+    sheet.getRange('D2:D1000').setWrap(true);
+
+    // グリッド線を見やすく（縞模様は不要なので省略）
+    Logger.log('✅ 営業日報シートの初期設定が完了しました。スプレッドシートを確認してください。');
+    Logger.log('📋 URL: https://docs.google.com/spreadsheets/d/' + DAILY_REPORT_SPREADSHEET_ID);
+}
+
+
 // 活動記録用スプレッドシートを取得するヘルパー関数
 function getActivityLogSpreadsheet() {
     return SpreadsheetApp.openById(ACTIVITY_LOG_SPREADSHEET_ID);
