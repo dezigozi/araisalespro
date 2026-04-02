@@ -1,7 +1,8 @@
 // ========================================
 // 設定
 // ========================================
-const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
+const SPREADSHEET_ID = '1FcBvdskysuy59z8JhNSgrkN0WWdl7hM5sBtZpBn03ws'; // ARAI_SALES_PRO メインスプレッドシート
+
 
 // 活動記録用スプレッドシートID（特販部_営業本ログ）
 const ACTIVITY_LOG_SPREADSHEET_ID = '1l2K-ODGJGmE1zqYlUVDck_cVmoefHkoebxHGI53Ekzw';
@@ -209,7 +210,7 @@ function doPost(e) {
 // 顧客一覧取得（修正済み：B列=会社名）
 // ========================================
 function getCustomers() {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('担当者マスタ');
     const data = sheet.getDataRange().getValues();
 
@@ -221,7 +222,7 @@ function getCustomers() {
 // 部署一覧取得（修正済み：B列=会社名, C列=部署）
 // ========================================
 function getDepartments(company) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('担当者マスタ');
     const data = sheet.getDataRange().getValues();
 
@@ -239,7 +240,7 @@ function getDepartments(company) {
 // 担当者一覧取得（修正済み：D列=担当者名）
 // ========================================
 function getContactsByDept(company, department) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('担当者マスタ');
     const data = sheet.getDataRange().getValues();
 
@@ -255,7 +256,7 @@ function getContactsByDept(company, department) {
 // 全マスタデータ一括取得（修正済み：F列=メール）
 // ========================================
 function getAllMasterData() {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('担当者マスタ');
     const data = sheet.getDataRange().getValues();
 
@@ -392,7 +393,7 @@ function addActivity(data) {
 // 訪問予定取得（年月指定）
 // ========================================
 function getVisitSchedule(year, month) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('訪問日マスタ');
 
     if (!sheet) {
@@ -436,7 +437,7 @@ function getVisitSchedule(year, month) {
 // 訪問予定更新/追加
 // ========================================
 function updateVisitSchedule(data) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = ss.getSheetByName('訪問日マスタ');
 
     // シートがなければ作成
@@ -490,7 +491,7 @@ function updateVisitSchedule(data) {
 // 訪問予定削除
 // ========================================
 function deleteVisitSchedule(data) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('訪問日マスタ');
 
     if (!sheet) {
@@ -534,7 +535,7 @@ function deleteVisitSchedule(data) {
 // 目標マスタから指定年月の目標を取得（日付型対応版）
 // ========================================
 function getGoals(yearMonth) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('目標マスタ');
 
     if (!sheet) {
@@ -580,7 +581,7 @@ function getGoals(yearMonth) {
 // 提案商品マスタから指定年月の商品を取得
 // ========================================
 function getProposalProducts(yearMonth) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('提案商品マスタ');
 
     if (!sheet) {
@@ -611,7 +612,7 @@ function getProposalProducts(yearMonth) {
 // ========================================
 function getMaterials() {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('販促シート');
 
         if (!sheet) {
@@ -649,7 +650,7 @@ function getMaterials() {
 // 当社担当一覧取得
 // ========================================
 function getOurReps() {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('当社担当マスタ');
 
     if (!sheet) {
@@ -736,7 +737,7 @@ FAX: 048-458-7315
 // メール送信ログ記録
 // ========================================
 function logEmailSent(recipient, ourRep, materials) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = ss.getSheetByName('送信ログ');
 
     if (!sheet) {
@@ -774,7 +775,7 @@ function testSendEmail() {
 // ========================================
 function getPerformanceData() {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('過去実績マスタ');
 
         if (!sheet) {
@@ -877,7 +878,7 @@ function getPerformanceData() {
 // ========================================
 function getPerformanceRawData() {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('過去実績マスタ');
 
         if (!sheet) {
@@ -935,7 +936,7 @@ function getPerformanceRawData() {
 // ========================================
 function getSalesAnalysisData() {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('見積実績マスタ');
 
         if (!sheet) {
@@ -1013,7 +1014,7 @@ function getSalesAnalysisData() {
 // ========================================
 function getSheetLastModified() {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const file = DriveApp.getFileById(ss.getId());
         const lastUpdated = file.getLastUpdated();
         
@@ -1032,7 +1033,7 @@ function getSheetLastModified() {
 // ========================================
 function getCustomerPhones() {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('顧客マスタ');
 
         if (!sheet) {
@@ -1071,7 +1072,7 @@ function getCustomerPhones() {
 // ========================================
 function addContact(data) {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('担当者マスタ');
 
         if (!sheet) {
@@ -1212,7 +1213,7 @@ function deleteActivity(data) {
 // ========================================
 function getContactsWithLastActivity() {
     try {
-        const masterSS = SpreadsheetApp.getActiveSpreadsheet();
+        const masterSS = SpreadsheetApp.openById(SPREADSHEET_ID);
         const activitySS = getActivityLogSpreadsheet();
         const contactSheet = masterSS.getSheetByName('担当者マスタ');
         const activitySheet = activitySS.getSheetByName('活動記録');
@@ -1304,7 +1305,7 @@ function getContactsWithLastActivity() {
 // ========================================
 function getActionList(yearMonth) {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('アクションリスト');
 
         if (!sheet) {
@@ -1339,7 +1340,7 @@ function getActionList(yearMonth) {
 // ========================================
 function saveActionList(data) {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         let sheet = ss.getSheetByName('アクションリスト');
 
         if (!sheet) {
@@ -1382,7 +1383,7 @@ function saveActionList(data) {
 // ========================================
 function removeFromActionList(data) {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('アクションリスト');
 
         if (!sheet) {
@@ -1512,7 +1513,7 @@ function testBackupEmail() {
 // ========================================
 function getOrderAnalysisData(offsetStr, limitStr) {
     try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const sheet = ss.getSheetByName('受注実績マスタ'); // 受注データシート名にあわせる
 
         if (!sheet) {
