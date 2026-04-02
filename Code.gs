@@ -6,6 +6,13 @@ const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
 // 活動記録用スプレッドシートID（特販部_営業本ログ）
 const ACTIVITY_LOG_SPREADSHEET_ID = '1l2K-ODGJGmE1zqYlUVDck_cVmoefHkoebxHGI53Ekzw';
 
+// 営業日報スプレッドシートID
+const DAILY_REPORT_SPREADSHEET_ID = '1usTpjZk2REfoRiZpgNNxTzXo1Y0XFUmTkaTftWxwRBU';
+
+function getDailyReportSpreadsheet() {
+    return SpreadsheetApp.openById(DAILY_REPORT_SPREADSHEET_ID);
+}
+
 // 活動記録用スプレッドシートを取得するヘルパー関数
 function getActivityLogSpreadsheet() {
     return SpreadsheetApp.openById(ACTIVITY_LOG_SPREADSHEET_ID);
@@ -79,6 +86,9 @@ function doGet(e) {
                 訪問予定日: e.parameter.date
             });
             break;
+        case 'getDailyReports':
+            result = getDailyReports(e.parameter.salesRep, e.parameter.limit);
+            break;
         default:
             result = { success: false, error: 'Unknown action' };
     }
@@ -121,6 +131,9 @@ function doPost(e) {
             break;
         case 'removeFromActionList':
             result = removeFromActionList(data);
+            break;
+        case 'saveDailyReport':
+            result = saveDailyReport(data);
             break;
         default:
             result = { success: false, error: 'Unknown action' };
@@ -1530,5 +1543,127 @@ function getOrderAnalysisData(offsetStr, limitStr) {
 
     } catch (error) {
         return { success: false, error: error.message };
+    }
+}
+
+// ========================================
+// 営業日報取得
+// ========================================
+function getDailyReports(salesRep, limit) {
+    try {
+        var ss = getDailyReportSpreadsheet();
+        var sheet = ss.getSheetByName('営業日報');
+
+        if (!sheet || sheet.getLastRow() < 2) {
+            return { success: true, data: [] };
+        }
+
+        var data = sheet.getDataRange().getValues();
+        var reportsMap = {};
+
+        for (var i = 1; i < data.length; i++) {
+            var row = data[i];
+            var date = row[0];
+            var rep = row[1];
+            var timeSlot = row[2];
+            var content = row[3];
+
+            if (!date || !rep) continue;
+            if (salesRep && rep !== salesRep) continue;
+
+            var dateStr;
+            if (date instanceof Date) {
+                dateStr = Utilities.formatDate(date, 'Asia/Tokyo', 'yyyy-MM-dd');
+            } else {
+                dateStr = String(date).substring(0, 10);
+            }
+
+            var key = dateStr + '_' + rep;
+            if (!reportsMap[key]) {
+                reportsMap[key] = { date: dateStr, salesRep: rep, amContent: '', pmContent: '' };
+            }
+
+            if (timeSlot === 'AM') {
+                reportsMap[key].amContent = content ? String(content) : '';
+            } else if (timeSlot === 'PM') {
+                reportsMap[key].pmContent = content ? String(content) : '';
+            }
+        }
+
+        var reports = Object.values(reportsMap).sort(function(a, b) {
+            return b.date.localeCompare(a.date);
+        });
+
+        var maxRows = limit ? parseInt(limit) : 30;
+        if (reports.length > maxRows) {
+            reports = reports.slice(0, maxRows);
+        }
+
+        return { success: true, data: reports };
+
+    } catch (e) {
+        return { success: false, error: e.message };
+    }
+}
+
+// ========================================
+// 営業日報保存（同日・同担当者は上書き）
+// ========================================
+function saveDailyReport(data) {
+    try {
+        var ss = getDailyReportSpreadsheet();
+        var sheet = ss.getSheetByName('営業日報');
+
+        if (!sheet) {
+            sheet = ss.insertSheet('営業日報');
+            sheet.appendRow(['年月日', '営業担当者', '作業時間', '項目']);
+        }
+
+        var salesRep = data.salesRep;
+        var date = data.date;
+        var amContent = data.amContent || '';
+        var pmContent = data.pmContent || '';
+
+        if (!salesRep || !date) {
+            return { success: false, error: '担当者と日付は必須です' };
+        }
+
+        var dateParts = date.split('-');
+        var dateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+
+        // 既存の同日・同担当者データを削除
+        var allData = sheet.getDataRange().getValues();
+        var rowsToDelete = [];
+
+        for (var i = 1; i < allData.length; i++) {
+            var rowDate = allData[i][0];
+            var rowRep = allData[i][1];
+
+            if (rowDate instanceof Date) {
+                rowDate = Utilities.formatDate(rowDate, 'Asia/Tokyo', 'yyyy-MM-dd');
+            } else {
+                rowDate = String(rowDate).substring(0, 10);
+            }
+
+            if (rowDate === date && rowRep === salesRep) {
+                rowsToDelete.push(i + 1);
+            }
+        }
+
+        for (var j = rowsToDelete.length - 1; j >= 0; j--) {
+            sheet.deleteRow(rowsToDelete[j]);
+        }
+
+        if (amContent) {
+            sheet.appendRow([dateObj, salesRep, 'AM', amContent]);
+        }
+        if (pmContent) {
+            sheet.appendRow([dateObj, salesRep, 'PM', pmContent]);
+        }
+
+        return { success: true };
+
+    } catch (e) {
+        return { success: false, error: e.message };
     }
 }

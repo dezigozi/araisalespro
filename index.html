@@ -47,6 +47,49 @@
   <main class="main-container">
     <!-- 入力フォーム -->
     <section id="tab-form" class="tab-content active">
+
+      <!-- ======== 営業日報 ======== -->
+      <div class="card daily-report-card" id="dailyReportCard">
+        <div class="card-header">
+          <h2 class="card-title daily-report-title">📋 営業日報</h2>
+          <div class="daily-report-header-right">
+            <span id="reportSubmittedBadge" class="submitted-badge" style="display:none;">✅ 提出済み</span>
+          </div>
+        </div>
+
+        <form id="dailyReportForm">
+          <div class="daily-date-row">
+            <label class="form-label" style="margin:0;white-space:nowrap;">■ 日付</label>
+            <input type="date" class="form-input daily-date-input" id="reportDate">
+          </div>
+
+          <div class="daily-am-pm-grid">
+            <div class="form-group">
+              <label class="form-label daily-time-label am-label">☀️ AM 業務内容</label>
+              <textarea class="form-textarea daily-textarea" id="amContent"
+                placeholder="・みつかる君価格変更の表示確認&#10;・ETCセットアップ委任状について ITS-TEAへ原本or PDF問題を質問&#10;・SMAS仙台小川様：ノートバックカメラ接続ケーブルのお問い合わせ調査対応"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label daily-time-label pm-label">🌙 PM 業務内容</label>
+              <textarea class="form-textarea daily-textarea" id="pmContent"
+                placeholder="・TCM大阪浅井様折り返し：エブリの福祉仕様車のマット見積作成&#10;・orixテレマ集計と伝発&#10;・4月レギュラー資料の価格無しバージョンの作成"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn daily-submit-btn" id="submitDailyReportBtn">
+            📝 日報を提出する
+          </button>
+        </form>
+
+        <div class="past-reports-toggle">
+          <button type="button" id="togglePastReports" class="toggle-past-btn">
+            📅 過去の日報を見る ▼
+          </button>
+        </div>
+        <div id="pastReportsList" class="past-reports-list" style="display:none;"></div>
+      </div>
+      <!-- ======== /営業日報 ======== -->
+
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">活動を記録</h2>
@@ -385,6 +428,7 @@
 
   <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/daily-report.js"></script>
 </body>
 
 </html>
