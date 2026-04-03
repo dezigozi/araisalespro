@@ -1749,8 +1749,8 @@ function searchDailyReports(query) {
     try {
         if (!query) return { success: true, data: [] };
         
-        // 全角スペースを半角に変換し、スペース区切りで配列にする
-        var keywords = String(query).replace(/　/g, ' ').split(' ').filter(function(k) { return k.trim() !== ''; });
+        // 全角スペースを半角に変換し、スペース区切りで配列にする (NFKCで全角半角カナ等を正規化)
+        var keywords = String(query).normalize('NFKC').replace(/　/g, ' ').split(' ').filter(function(k) { return k.trim() !== ''; });
         if (keywords.length === 0) return { success: true, data: [] };
         
         var ss = getDailyReportSpreadsheet();
@@ -1795,8 +1795,8 @@ function searchDailyReports(query) {
         
         for (var j = 0; j < allReports.length; j++) {
             var r = allReports[j];
-            // 検索対象テキスト：担当名、AM内容、PM内容の結合
-            var targetText = (r.salesRep + ' ' + (r.amContent || '') + ' ' + (r.pmContent || '')).toLowerCase();
+            // 検索対象テキスト：担当名、AM内容、PM内容の結合 (NFKCで全角半角カナ等を正規化)
+            var targetText = (r.salesRep + ' ' + (r.amContent || '') + ' ' + (r.pmContent || '')).normalize('NFKC').toLowerCase();
             var isMatch = true;
             
             // AND検索
