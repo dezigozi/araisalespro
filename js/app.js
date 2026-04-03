@@ -396,7 +396,24 @@ async function fetchAPI(action, params = {}) {
 
   try {
     const res = await fetch(url);
-    return await res.json();
+    const text = await res.text();
+    const trimmed = text.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        return JSON.parse(trimmed);
+      } catch (e) {
+        console.error('fetchAPI JSON parse:', e);
+        showToast('データの解析に失敗しました', true);
+        return null;
+      }
+    }
+    if (text.includes('スクリプト関数が見つかりません')) {
+      showToast('GASのWebアプリを再デプロイしてください（doGetが見つかりません）', true);
+      return null;
+    }
+    console.error('fetchAPI unexpected body:', trimmed.substring(0, 300));
+    showToast('通信エラー', true);
+    return null;
   } catch (e) {
     console.error('API Error:', e);
     showToast('通信エラー', true);
@@ -404,22 +421,52 @@ async function fetchAPI(action, params = {}) {
   }
 }
 
+function parseGasResponseText(text) {
+  const t = (text || '').trim();
+  if (!t) {
+    return { success: false, error: '空の応答です' };
+  }
+  if (t.startsWith('{') || t.startsWith('[')) {
+    try {
+      return JSON.parse(t);
+    } catch (e) {
+      return { success: false, error: 'JSONの解析に失敗しました' };
+    }
+  }
+  if (t.includes('スクリプト関数が見つかりません')) {
+    return {
+      success: false,
+      error: 'GASのWebアプリを再デプロイしてください（doGet/doPostが見つかりません）'
+    };
+  }
+  return { success: false, error: 'サーバーから予期しない応答がありました' };
+}
+
 async function postAPI(data) {
   try {
-    // GAS Web App has CORS limitations for POST requests
-    // Use no-cors mode and verify by reloading data
-    await fetch(GAS_URL, {
+    const res = await fetch(GAS_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
+      redirect: 'follow',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    // Cannot read response with no-cors, return success
-    return { success: true };
+    const parsed = parseGasResponseText(await res.text());
+    return parsed;
   } catch (e) {
-    console.error('API Error:', e);
-    showToast('通信エラー', true);
-    return null;
+    console.warn('postAPI: CORSまたはネットワークエラーのため no-cors で再試行します', e);
+    try {
+      await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(data)
+      });
+      return { success: true, unverified: true };
+    } catch (e2) {
+      console.error('postAPI Error:', e2);
+      showToast('通信エラー', true);
+      return null;
+    }
   }
 }
 
@@ -754,11 +801,11 @@ async function deleteActivityRecord(id) {
     id: id
   });
 
-  if (result) {
-    showToast('活動記録を削除しました');
+  if (result && result.success) {
+    showToast(result.unverified ? '削除リクエストを送信しました（結果は一覧で確認してください）' : '活動記録を削除しました');
     loadActivities();
   } else {
-    showToast('削除に失敗しました', true);
+    showToast((result && result.error) || '削除に失敗しました', true);
   }
 }
 
@@ -984,12 +1031,12 @@ function setupEditActivityModal() {
         proposals
       });
 
-      if (result) {
-        showToast('活動記録を更新しました');
+      if (result && result.success) {
+        showToast(result.unverified ? '更新リクエストを送信しました（結果は一覧で確認してください）' : '活動記録を更新しました');
         closeModal();
         loadActivities();
       } else {
-        throw new Error('更新に失敗しました');
+        throw new Error((result && result.error) || '更新に失敗しました');
       }
     } catch (error) {
       showToast(error.message || '更新に失敗しました', true);
@@ -1064,8 +1111,8 @@ async function handleSubmit(e) {
 
   const result = await postAPI(data);
 
-  if (result) {
-    showToast('活動を記録しました！');
+  if (result && result.success) {
+    showToast(result.unverified ? '活動の記録を送信しました（結果は履歴で確認してください）' : '活動を記録しました！');
 
     // フォームリセット
     document.getElementById('activityForm').reset();
@@ -1075,6 +1122,8 @@ async function handleSubmit(e) {
     resetDepartmentSelect();
     resetContactSelect();
     resetProposalProducts(); // 提案商品もリセット
+  } else {
+    showToast((result && result.error) || '記録に失敗しました', true);
   }
 
   btn.disabled = false;
@@ -1164,8 +1213,8 @@ function setupAddContactModal() {
         contactName: contactName
       });
 
-      if (result && result.success !== false) {
-        showToast(`★ ${contactName} を登録しました`);
+      if (result && result.success) {
+        showToast(result.unverified ? `★ ${contactName} を送信しました（結果はマスタ更新で確認）` : `★ ${contactName} を登録しました`);
 
         // キャッシュを更新
         const key = `${company}_${department}`;

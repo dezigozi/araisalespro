@@ -75,7 +75,7 @@
     }
 
     try {
-      await postAPI({
+      var result = await postAPI({
         action: 'saveDailyReport',
         salesRep: salesRep,
         date: reportDate,
@@ -83,10 +83,21 @@
         pmContent: pmContent
       });
 
-      // 提出済みフラグをlocalStorageに保存
-      localStorage.setItem('drep_' + salesRep + '_' + reportDate, '1');
+      if (!result || !result.success) {
+        showToast('送信失敗: ' + ((result && result.error) || '不明なエラー'), true);
+        return;
+      }
 
-      showToast('✅ 日報を提出しました！');
+      // 応答を読めたときだけ提出済みを確実に反映（no-cors のみの場合は一覧で確認してもらう）
+      if (!result.unverified) {
+        localStorage.setItem('drep_' + salesRep + '_' + reportDate, '1');
+      }
+
+      showToast(
+        result.unverified
+          ? '送信リクエストを送りました（CORS制限のため結果未確認。過去の日報で保存を確認してください）'
+          : '✅ 日報を提出しました！'
+      );
 
       // テキストエリアをクリア
       document.getElementById('amContent').value = '';
