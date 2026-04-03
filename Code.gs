@@ -4,11 +4,11 @@
 const SPREADSHEET_ID = '1FcBvdskysuy59z8JhNSgrkN0WWdl7hM5sBtZpBn03ws'; // ARAI_SALES_PRO メインスプレッドシート
 
 
-// 活動記録用スプレッドシートID（特販部_営業本ログ）
+// 活動記録・営業日報用スプレッドシートID（同一ブック「特販部_営業訪問ログ」内のシート「活動記録」「営業日報」）
 const ACTIVITY_LOG_SPREADSHEET_ID = '1l2K-ODGJGmE1zqYlUVDck_cVmoefHkoebxHGI53Ekzw';
 
-// 営業日報スプレッドシートID
-const DAILY_REPORT_SPREADSHEET_ID = '1usTpjZk2REfoRiZpgNNxTzXo1Y0XFUmTkaTftWxwRBU';
+// 営業日報も上記と同じブックのシート「営業日報」へ保存（別ブックに分ける場合のみここを別IDに変更）
+const DAILY_REPORT_SPREADSHEET_ID = ACTIVITY_LOG_SPREADSHEET_ID;
 
 function getDailyReportSpreadsheet() {
     return SpreadsheetApp.openById(DAILY_REPORT_SPREADSHEET_ID);
