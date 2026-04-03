@@ -230,8 +230,25 @@
       </div>
     </section>
 
-    <!-- 活動履歴 -->
+    <!-- 活動履歴・日報検索エリア -->
     <section id="tab-list" class="tab-content">
+      
+      <!-- 日報検索 -->
+      <div class="card" id="dailyReportSearchCard">
+        <div class="card-header">
+          <h2 class="card-title">🔍 日報検索</h2>
+        </div>
+        <div class="form-group" style="display:flex; gap:0.5rem; align-items:center;">
+          <input type="text" id="reportSearchInput" class="form-input" style="flex:1;" placeholder="キーワードを入力 (例: カーナビ マエカワ)">
+          <button type="button" class="submit-btn" id="reportSearchBtn" style="width:auto; padding: 0.875rem 1.5rem; margin-top:0;">検索</button>
+        </div>
+        <div id="reportSearchResult" class="activity-list" style="max-height: 400px; overflow-y: auto; display:none;">
+          <div class="loading-small" style="display:none;" id="reportSearchLoading">検索中...</div>
+          <div id="reportSearchContent"></div>
+        </div>
+      </div>
+
+      <!-- 活動履歴 -->
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">活動履歴</h2>

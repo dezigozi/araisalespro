@@ -160,6 +160,9 @@ function doGet(e) {
         case 'getDailyReports':
             result = getDailyReports(e.parameter.salesRep, e.parameter.limit);
             break;
+        case 'searchDailyReports':
+            result = searchDailyReports(e.parameter.query);
+            break;
         default:
             result = { success: false, error: 'Unknown action' };
     }
@@ -1734,6 +1737,91 @@ function saveDailyReport(data) {
 
         return { success: true };
 
+    } catch (e) {
+        return { success: false, error: e.message };
+    }
+}
+
+// ========================================
+// 営業日報検索（複数キーワードAND検索）
+// ========================================
+function searchDailyReports(query) {
+    try {
+        if (!query) return { success: true, data: [] };
+        
+        // 全角スペースを半角に変換し、スペース区切りで配列にする
+        var keywords = String(query).replace(/　/g, ' ').split(' ').filter(function(k) { return k.trim() !== ''; });
+        if (keywords.length === 0) return { success: true, data: [] };
+        
+        var ss = getDailyReportSpreadsheet();
+        var sheet = ss.getSheetByName('営業日報');
+        if (!sheet || sheet.getLastRow() < 2) return { success: true, data: [] };
+        
+        var data = sheet.getDataRange().getValues();
+        var reportsMap = {};
+        
+        // getDailyReportsと同様に、同日・同担当者でAM/PMをまとめる
+        for (var i = 1; i < data.length; i++) {
+            var row = data[i];
+            var date = row[0];
+            var rep = row[1];
+            var timeSlot = row[2];
+            var content = row[3];
+            
+            if (!date || !rep) continue;
+            
+            var dateStr;
+            if (date instanceof Date) {
+                dateStr = Utilities.formatDate(date, 'Asia/Tokyo', 'yyyy-MM-dd');
+            } else {
+                dateStr = String(date).substring(0, 10);
+            }
+            
+            var key = dateStr + '_' + rep;
+            if (!reportsMap[key]) {
+                reportsMap[key] = { date: dateStr, salesRep: rep, amContent: '', pmContent: '' };
+            }
+            
+            if (timeSlot === 'AM') {
+                reportsMap[key].amContent = content ? String(content) : '';
+            } else if (timeSlot === 'PM') {
+                reportsMap[key].pmContent = content ? String(content) : '';
+            }
+        }
+        
+        // 検索処理
+        var allReports = Object.values(reportsMap);
+        var matchedReports = [];
+        
+        for (var j = 0; j < allReports.length; j++) {
+            var r = allReports[j];
+            // 検索対象テキスト：担当名、AM内容、PM内容の結合
+            var targetText = (r.salesRep + ' ' + (r.amContent || '') + ' ' + (r.pmContent || '')).toLowerCase();
+            var isMatch = true;
+            
+            // AND検索
+            for (var k = 0; k < keywords.length; k++) {
+                if (targetText.indexOf(keywords[k].toLowerCase()) === -1) {
+                    isMatch = false;
+                    break;
+                }
+            }
+            if (isMatch) {
+                matchedReports.push(r);
+            }
+        }
+        
+        // 降順ソート
+        matchedReports.sort(function(a, b) {
+            return b.date.localeCompare(a.date);
+        });
+        
+        // 最大50件に制限
+        if (matchedReports.length > 50) {
+            matchedReports = matchedReports.slice(0, 50);
+        }
+        
+        return { success: true, data: matchedReports };
     } catch (e) {
         return { success: false, error: e.message };
     }

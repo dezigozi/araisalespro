@@ -44,6 +44,23 @@
 
     // 初期バッジチェック
     checkSubmittedBadge();
+
+    // 日報検索ボタン
+    var searchBtn = document.getElementById('reportSearchBtn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', handleReportSearch);
+      
+      // Enterキーで検索
+      var searchInput = document.getElementById('reportSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleReportSearch();
+          }
+        });
+      }
+    }
   }
 
   // ----------------------------------------
@@ -274,6 +291,82 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  // ----------------------------------------
+  // 日報検索
+  // ----------------------------------------
+  async function handleReportSearch() {
+    var query = document.getElementById('reportSearchInput').value.trim();
+    var resultList = document.getElementById('reportSearchContent');
+    var loading = document.getElementById('reportSearchLoading');
+    var container = document.getElementById('reportSearchResult');
+
+    if (!query) {
+      showToast('検索キーワードを入力してください', true);
+      return;
+    }
+
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '0.75rem';
+    container.style.marginTop = '1rem';
+    loading.style.display = 'block';
+    resultList.innerHTML = '';
+    
+    var btn = document.getElementById('reportSearchBtn');
+    if (btn) btn.disabled = true;
+
+    try {
+      var result = await fetchAPI('searchDailyReports', { query: query });
+      
+      loading.style.display = 'none';
+
+      if (!result || !result.success) {
+        resultList.innerHTML = '<div style="color:var(--accent-red);text-align:center;padding:1rem;">検索に失敗しました</div>';
+        return;
+      }
+
+      if (!result.data || result.data.length === 0) {
+        resultList.innerHTML = '<div style="color:var(--text-secondary);text-align:center;padding:1rem;">一致する日報が見つかりません</div>';
+        return;
+      }
+
+      var dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+
+      resultList.innerHTML = result.data.map(function (report) {
+        var dateObj = new Date(report.date + 'T00:00:00');
+        var dateStr = dateObj.getFullYear() + '年' +
+                      (dateObj.getMonth() + 1) + '月' +
+                      dateObj.getDate() + '日(' +
+                      dayNames[dateObj.getDay()] + ')';
+
+        var amHtml = report.amContent
+          ? '<div style="margin-top:0.75rem;font-size:0.85rem;"><strong style="color:var(--accent-red);">☀️ AM</strong><div style="color:var(--text-secondary);white-space:pre-wrap;margin-top:0.25rem;line-height:1.5;">' + escapeHtml(report.amContent) + '</div></div>'
+          : '';
+
+        var pmHtml = report.pmContent
+          ? '<div style="margin-top:0.75rem;font-size:0.85rem;"><strong style="color:var(--accent-blue);">🌙 PM</strong><div style="color:var(--text-secondary);white-space:pre-wrap;margin-top:0.25rem;line-height:1.5;">' + escapeHtml(report.pmContent) + '</div></div>'
+          : '';
+
+        var repBadge = report.salesRep
+          ? '<div class="activity-sales-rep" style="margin-left: auto;">' + escapeHtml(report.salesRep) + '</div>'
+          : '';
+
+        return '<div class="activity-item">' +
+                 '<div class="activity-header">' +
+                   '<span class="activity-date">📅 ' + dateStr + '</span>' +
+                   repBadge +
+                 '</div>' +
+                 amHtml + pmHtml +
+               '</div>';
+      }).join('');
+    } catch (e) {
+      loading.style.display = 'none';
+      resultList.innerHTML = '<div style="color:var(--accent-red);text-align:center;padding:1rem;">エラーが発生しました</div>';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   }
 
 })();
