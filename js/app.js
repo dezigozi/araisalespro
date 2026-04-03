@@ -1,7 +1,7 @@
 // ========================================
-// 設定
+// 設定（GAS の URL は js/gas-config.js。index.html で先に読み込む）
 // ========================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbywfK9XT0cvtfSmVGmB5SjRALqU_qrJrRSwcyCPa3pyXYqGgJhRYO-SfQ4mpPwypwgA7g/exec';
+const GAS_URL = GAS_WEBAPP_URL;
 const CACHE_KEY = 'sfa_master_cache';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24時間
 

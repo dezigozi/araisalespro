@@ -2,8 +2,8 @@
 // 売上分析ページ JavaScript
 // ========================================
 
-// GAS Web App URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbwrd5rm_eKQGJgON83RW8qg5H0SkMkqk6Zmrwh-lM62cqG6he9Ugq-7vmN0wXaaj-a3Nw/exec';
+// GAS Web App URL（js/gas-config.js）
+const API_URL = GAS_WEBAPP_URL;
 
 // キャッシュキー
 // キャッシュキー

@@ -3,7 +3,7 @@
 // ========================================
 
 // GAS WebアプリURL
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwrd5rm_eKQGJgON83RW8qg5H0SkMkqk6Zmrwh-lM62cqG6he9Ugq-7vmN0wXaaj-a3Nw/exec';
+const GAS_URL = GAS_WEBAPP_URL;
 
 // キャッシュ設定
 const PERFORMANCE_CACHE_KEY = 'sfa_performance_cache';

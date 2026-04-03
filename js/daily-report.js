@@ -47,6 +47,34 @@
   }
 
   // ----------------------------------------
+  // POST が CORS で応答を読めない場合、GET で保存済みか照合する
+  // ----------------------------------------
+  function normDailyText(s) {
+    return String(s || '').trim();
+  }
+
+  async function verifyDailyReportSaved(salesRep, reportDate, amContent, pmContent) {
+    var waitMs = [0, 450, 900, 1600];
+    var i;
+    for (i = 0; i < waitMs.length; i++) {
+      if (waitMs[i] > 0) {
+        await new Promise(function (resolve) { setTimeout(resolve, waitMs[i]); });
+      }
+      var res = await fetchAPI('getDailyReports', { salesRep: salesRep, limit: 60 });
+      if (!res || !res.success || !res.data) continue;
+      var j;
+      for (j = 0; j < res.data.length; j++) {
+        var r = res.data[j];
+        if (r.date !== reportDate || r.salesRep !== salesRep) continue;
+        if (normDailyText(r.amContent) !== normDailyText(amContent)) continue;
+        if (normDailyText(r.pmContent) !== normDailyText(pmContent)) continue;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ----------------------------------------
   // 日報フォーム送信
   // ----------------------------------------
   async function handleDailyReportSubmit(e) {
@@ -88,30 +116,30 @@
         return;
       }
 
-      // 応答を読めたときだけ提出済みを確実に反映（no-cors のみの場合は一覧で確認してもらう）
-      if (!result.unverified) {
-        localStorage.setItem('drep_' + salesRep + '_' + reportDate, '1');
+      var confirmed = !result.unverified;
+      if (result.unverified) {
+        if (btn) btn.textContent = '保存確認中...';
+        confirmed = await verifyDailyReportSaved(salesRep, reportDate, amContent, pmContent);
       }
 
-      showToast(
-        result.unverified
-          ? '送信リクエストを送りました（CORS制限のため結果未確認。過去の日報で保存を確認してください）'
-          : '✅ 日報を提出しました！'
-      );
-
-      // テキストエリアをクリア
-      document.getElementById('amContent').value = '';
-      document.getElementById('pmContent').value = '';
-
-      // バッジ更新
-      checkSubmittedBadge();
-
-      // 過去の日報が表示中なら再読み込み
-      var pastList = document.getElementById('pastReportsList');
-      if (pastList && pastList.style.display !== 'none') {
-        pastReportsLoaded = false;
-        await loadPastReports();
-        pastReportsLoaded = true;
+      if (confirmed) {
+        localStorage.setItem('drep_' + salesRep + '_' + reportDate, '1');
+        showToast('✅ 日報を提出しました！');
+        document.getElementById('amContent').value = '';
+        document.getElementById('pmContent').value = '';
+        checkSubmittedBadge();
+        var pastList = document.getElementById('pastReportsList');
+        if (pastList && pastList.style.display !== 'none') {
+          pastReportsLoaded = false;
+          await loadPastReports();
+          pastReportsLoaded = true;
+        }
+      } else {
+        showToast(
+          '送信リクエストは出しましたが、保存を確認できませんでした。' +
+            '「過去の日報」またはスプレッドシートで確認し、未反映なら再度お試しください。',
+          true
+        );
       }
     } catch (err) {
       showToast('送信失敗: ' + (err.message || '不明なエラー'), true);

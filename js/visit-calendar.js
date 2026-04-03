@@ -1,7 +1,7 @@
 // ========================================
 // 訪問予定カレンダー
 // ========================================
-const GAS_URL_CALENDAR = 'https://script.google.com/macros/s/AKfycbwrd5rm_eKQGJgON83RW8qg5H0SkMkqk6Zmrwh-lM62cqG6he9Ugq-7vmN0wXaaj-a3Nw/exec';
+const GAS_URL_CALENDAR = GAS_WEBAPP_URL;
 
 // 状態管理
 let calendarState = {
