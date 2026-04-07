@@ -58,9 +58,26 @@
         </div>
 
         <form id="dailyReportForm">
-          <div class="daily-date-row">
-            <label class="form-label" style="margin:0;white-space:nowrap;">■ 日付</label>
-            <input type="date" class="form-input daily-date-input" id="reportDate">
+          <div class="daily-date-row" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <label class="form-label" style="margin:0;white-space:nowrap;">■ 日付</label>
+              <input type="date" class="form-input daily-date-input" id="reportDate">
+            </div>
+            <details class="daily-rules-details" style="font-size: 0.85rem; color: #a0aec0; cursor: pointer; flex: 1; position: relative;">
+              <summary style="user-select: none; font-weight: 500; outline: none; margin-left: 0.5rem; display: inline-block;">ⓘ 営業日報ルール</summary>
+              <div style="margin-top: 0.75rem; padding: 1rem; background: #2d3748; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; line-height: 1.6; position: absolute; left: 0; top: 100%; z-index: 50; width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); color: #e2e8f0;">
+                <strong>■営業日報提出期日ルール</strong><br>
+                ①内勤日・・・翌日<br>
+                ②外出日・・・2営業日後<br>
+                <span style="font-size: 0.9em; opacity: 0.8;">（一日のうちに一回でも外出があった場合）<br>
+                （連続外出の場合最終日の2営業日後）</span><br>
+                ③宿泊を伴う外出・・・最終日から3営業日後<br>
+                <div style="margin-top: 0.5rem;">
+                  <strong>※記入トピックス</strong><br>
+                  人数は簡易的でよい→例＞NCS3部米沢様他4名
+                </div>
+              </div>
+            </details>
           </div>
 
           <div class="daily-am-pm-grid">
