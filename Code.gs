@@ -1705,13 +1705,17 @@ function saveDailyReport(data) {
         var dateParts = date.split('-');
         var dateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
 
-        // 既存の同日・同担当者データを削除
+        // 既存の同日・同担当者データを探して削除対象にする
         var allData = sheet.getDataRange().getValues();
         var rowsToDelete = [];
+        var existingAm = '';
+        var existingPm = '';
 
         for (var i = 1; i < allData.length; i++) {
             var rowDate = allData[i][0];
             var rowRep = allData[i][1];
+            var rowTime = allData[i][2];
+            var rowContent = allData[i][3];
 
             if (rowDate instanceof Date) {
                 rowDate = Utilities.formatDate(rowDate, 'Asia/Tokyo', 'yyyy-MM-dd');
@@ -1721,7 +1725,20 @@ function saveDailyReport(data) {
 
             if (rowDate === date && rowRep === salesRep) {
                 rowsToDelete.push(i + 1);
+                if (rowTime === 'AM' && rowContent) {
+                    existingAm = String(rowContent);
+                } else if (rowTime === 'PM' && rowContent) {
+                    existingPm = String(rowContent);
+                }
             }
+        }
+
+        // フロントエンドからの送信内容が空の場合、既存のデータがあれば上書きせずに保持する（マージ処理）
+        if (!amContent.trim() && existingAm) {
+            amContent = existingAm;
+        }
+        if (!pmContent.trim() && existingPm) {
+            pmContent = existingPm;
         }
 
         for (var j = rowsToDelete.length - 1; j >= 0; j--) {
