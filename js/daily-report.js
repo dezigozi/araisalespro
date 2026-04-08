@@ -88,9 +88,9 @@
         var r = res.data[j];
         if (r.date !== reportDate || r.salesRep !== salesRep) continue;
         
-        // バックエンドでマージされるため、送信した内容が含まれていればOKとする
-        if (amContent && normDailyText(r.amContent) !== normDailyText(amContent)) continue;
-        if (pmContent && normDailyText(r.pmContent) !== normDailyText(pmContent)) continue;
+        // バックエンドでマージや追記が行われるため、送信した内容が含まれていればOKとする
+        if (amContent && String(r.amContent || '').indexOf(amContent.trim()) === -1) continue;
+        if (pmContent && String(r.pmContent || '').indexOf(pmContent.trim()) === -1) continue;
         return true;
       }
     }

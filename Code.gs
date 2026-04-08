@@ -1697,6 +1697,7 @@ function saveDailyReport(data) {
         var date = data.date;
         var amContent = data.amContent || '';
         var pmContent = data.pmContent || '';
+        var overwrite = !!data.overwrite;
 
         if (!salesRep || !date) {
             return { success: false, error: '担当者と日付は必須です' };
@@ -1733,12 +1734,19 @@ function saveDailyReport(data) {
             }
         }
 
-        // フロントエンドからの送信内容が空の場合、既存のデータがあれば上書きせずに保持する（マージ処理）
-        if (!amContent.trim() && existingAm) {
-            amContent = existingAm;
-        }
-        if (!pmContent.trim() && existingPm) {
-            pmContent = existingPm;
+        // 編集モード（overwrite）でなければ、送信内容が空の場合に既存データを保持し、入力がある場合は「追記」する（マージ処理）
+        if (!overwrite) {
+            if (amContent.trim() && existingAm) {
+                amContent = existingAm + '\n\n' + amContent;
+            } else if (!amContent.trim() && existingAm) {
+                amContent = existingAm;
+            }
+
+            if (pmContent.trim() && existingPm) {
+                pmContent = existingPm + '\n\n' + pmContent;
+            } else if (!pmContent.trim() && existingPm) {
+                pmContent = existingPm;
+            }
         }
 
         for (var j = rowsToDelete.length - 1; j >= 0; j--) {
