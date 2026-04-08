@@ -20,10 +20,9 @@
       var d = String(now.getDate()).padStart(2, '0');
       reportDateInput.value = y + '-' + m + '-' + d;
 
-      // 日付変更時に提出済みバッジを更新し、既存データがあれば読み込む
+      // 日付変更時に提出済みバッジを更新
       reportDateInput.addEventListener('change', function() {
         checkSubmittedBadge();
-        loadExistingReport();
       });
     }
 
@@ -39,18 +38,16 @@
       toggleBtn.addEventListener('click', togglePastReportsList);
     }
 
-    // 担当者変更時にバッジも更新し、既存データがあれば読み込む
+    // 担当者変更時にバッジも更新
     var salesRepSelect = document.getElementById('salesRepSelect');
     if (salesRepSelect) {
       salesRepSelect.addEventListener('change', function() {
         checkSubmittedBadge();
-        loadExistingReport();
       });
     }
 
-    // 初期バッジチェックと既存データ読み込み
+    // 初期バッジチェック
     checkSubmittedBadge();
-    loadExistingReport();
 
     // 日報検索ボタン
     var searchBtn = document.getElementById('reportSearchBtn');
@@ -66,51 +63,6 @@
             handleReportSearch();
           }
         });
-      }
-    }
-  }
-
-  // ----------------------------------------
-  // 既存の日報データをフォームに読み込む
-  // ----------------------------------------
-  async function loadExistingReport() {
-    var salesRep = document.getElementById('salesRepSelect') && document.getElementById('salesRepSelect').value;
-    var reportDate = document.getElementById('reportDate') && document.getElementById('reportDate').value;
-    var amField = document.getElementById('amContent');
-    var pmField = document.getElementById('pmContent');
-    var submitBtn = document.getElementById('submitDailyReportBtn');
-
-    if (!amField || !pmField) return;
-
-    if (!salesRep || !reportDate) {
-      amField.value = '';
-      pmField.value = '';
-      return;
-    }
-
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'データ取得中...';
-    }
-
-    amField.value = '';
-    pmField.value = '';
-
-    try {
-      var res = await fetchAPI('getDailyReports', { salesRep: salesRep, limit: 100 });
-      if (res && res.success && res.data) {
-        var found = res.data.find(function(r) { return r.date === reportDate; });
-        if (found) {
-          amField.value = found.amContent || '';
-          pmField.value = found.pmContent || '';
-        }
-      }
-    } catch(err) {
-      console.error(err);
-    } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '📝 日報を提出する';
       }
     }
   }
@@ -135,12 +87,44 @@
       for (j = 0; j < res.data.length; j++) {
         var r = res.data[j];
         if (r.date !== reportDate || r.salesRep !== salesRep) continue;
-        if (normDailyText(r.amContent) !== normDailyText(amContent)) continue;
-        if (normDailyText(r.pmContent) !== normDailyText(pmContent)) continue;
+        
+        // バックエンドでマージされるため、送信した内容が含まれていればOKとする
+        if (amContent && normDailyText(r.amContent) !== normDailyText(amContent)) continue;
+        if (pmContent && normDailyText(r.pmContent) !== normDailyText(pmContent)) continue;
         return true;
       }
     }
     return false;
+  }
+
+  var isDailyReportEditMode = false;
+
+  // ----------------------------------------
+  // 過去の日報から「編集」をクリックして読み込む
+  // ----------------------------------------
+  function startEditDailyReport(reportData) {
+    var reportDate = document.getElementById('reportDate');
+    var salesRep = document.getElementById('salesRepSelect');
+    var amField = document.getElementById('amContent');
+    var pmField = document.getElementById('pmContent');
+    var submitBtn = document.getElementById('submitDailyReportBtn');
+    
+    if (reportDate) reportDate.value = reportData.date;
+    if (salesRep && reportData.salesRep) salesRep.value = reportData.salesRep;
+    if (amField) amField.value = reportData.amContent || '';
+    if (pmField) pmField.value = reportData.pmContent || '';
+    
+    // 編集モードを有効化（空欄が上書きされるようになる）
+    isDailyReportEditMode = true;
+    
+    if (submitBtn) {
+      submitBtn.textContent = '✏️ 編集を保存する';
+      submitBtn.style.backgroundColor = '#d97706'; // オレンジ色で強調
+    }
+    
+    // フォームまでスクロール
+    document.getElementById('dailyReportCard').scrollIntoView({ behavior: 'smooth' });
+    showToast('編集モードになりました。空欄にして保存するとその項目は「削除」されます。');
   }
 
   // ----------------------------------------
@@ -177,7 +161,8 @@
         salesRep: salesRep,
         date: reportDate,
         amContent: amContent,
-        pmContent: pmContent
+        pmContent: pmContent,
+        overwrite: isDailyReportEditMode // 編集モード時は空欄で上書き（削除）する
       });
 
       if (!result || !result.success) {
@@ -212,9 +197,12 @@
     } catch (err) {
       showToast('送信失敗: ' + (err.message || '不明なエラー'), true);
     } finally {
+      // 送信完了後にモードをリセット
+      isDailyReportEditMode = false;
       if (btn) {
         btn.disabled = false;
         btn.textContent = '📝 日報を提出する';
+        btn.style.backgroundColor = '';
       }
     }
   }
@@ -320,16 +308,33 @@
       var repBadge = report.salesRep
         ? '<span class="past-report-rep">' + escapeHtml(report.salesRep) + '</span>'
         : '';
+        
+      var reportJson = JSON.stringify(report).replace(/'/g, "&apos;");
 
-      return '<div class="past-report-item">' +
-               '<div class="past-report-date-row">' +
-                 '<span class="past-report-date">📅 ' + dateStr + '</span>' +
-                 repBadge +
+      return '<div class="past-report-item" data-report=\'' + reportJson + '\'>' +
+               '<div class="past-report-date-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">' +
+                 '<div style="display:flex; align-items:center; gap:0.5rem;">' +
+                   '<span class="past-report-date">📅 ' + dateStr + '</span>' +
+                   repBadge +
+                 '</div>' +
+                 '<button type="button" class="action-btn edit-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(255,255,255,0.1); border:none; border-radius:4px; color:#e2e8f0; cursor:pointer;" title="編集・削除">✏️ 編集</button>' +
                '</div>' +
                amHtml +
                pmHtml +
              '</div>';
     }).join('');
+
+    // アクションバインディング
+    list.querySelectorAll('.edit-report-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var item = btn.closest('.past-report-item');
+        if (item && item.dataset.report) {
+          var reportData = JSON.parse(item.dataset.report.replace(/&apos;/g, "'"));
+          startEditDailyReport(reportData);
+        }
+      });
+    });
   }
 
   // ----------------------------------------
@@ -404,14 +409,29 @@
           ? '<div class="activity-sales-rep" style="margin-left: auto;">' + escapeHtml(report.salesRep) + '</div>'
           : '';
 
-        return '<div class="activity-item">' +
-                 '<div class="activity-header">' +
+        var reportJson = JSON.stringify(report).replace(/'/g, "&apos;");
+
+        return '<div class="activity-item past-report-item" data-report=\'' + reportJson + '\'>' +
+                 '<div class="activity-header" style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">' +
                    '<span class="activity-date">📅 ' + dateStr + '</span>' +
                    repBadge +
+                   '<button type="button" class="action-btn edit-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(255,255,255,0.1); border:none; border-radius:4px; color:#e2e8f0; cursor:pointer; margin-left:auto;" title="編集・削除">✏️ 編集</button>' +
                  '</div>' +
                  amHtml + pmHtml +
                '</div>';
       }).join('');
+      
+      // 検索結果内のアクションバインディング
+      resultList.querySelectorAll('.edit-report-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var item = btn.closest('.past-report-item');
+          if (item && item.dataset.report) {
+            var reportData = JSON.parse(item.dataset.report.replace(/&apos;/g, "'"));
+            startEditDailyReport(reportData);
+          }
+        });
+      });
     } catch (e) {
       loading.style.display = 'none';
       resultList.innerHTML = '<div style="color:var(--accent-red);text-align:center;padding:1rem;">エラーが発生しました</div>';
