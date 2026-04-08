@@ -20,8 +20,11 @@
       var d = String(now.getDate()).padStart(2, '0');
       reportDateInput.value = y + '-' + m + '-' + d;
 
-      // 日付変更時に提出済みバッジを更新
-      reportDateInput.addEventListener('change', checkSubmittedBadge);
+      // 日付変更時に提出済みバッジを更新し、既存データがあれば読み込む
+      reportDateInput.addEventListener('change', function() {
+        checkSubmittedBadge();
+        loadExistingReport();
+      });
     }
 
     // フォーム送信
@@ -36,14 +39,18 @@
       toggleBtn.addEventListener('click', togglePastReportsList);
     }
 
-    // 担当者変更時にバッジも更新
+    // 担当者変更時にバッジも更新し、既存データがあれば読み込む
     var salesRepSelect = document.getElementById('salesRepSelect');
     if (salesRepSelect) {
-      salesRepSelect.addEventListener('change', checkSubmittedBadge);
+      salesRepSelect.addEventListener('change', function() {
+        checkSubmittedBadge();
+        loadExistingReport();
+      });
     }
 
-    // 初期バッジチェック
+    // 初期バッジチェックと既存データ読み込み
     checkSubmittedBadge();
+    loadExistingReport();
 
     // 日報検索ボタン
     var searchBtn = document.getElementById('reportSearchBtn');
@@ -59,6 +66,51 @@
             handleReportSearch();
           }
         });
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // 既存の日報データをフォームに読み込む
+  // ----------------------------------------
+  async function loadExistingReport() {
+    var salesRep = document.getElementById('salesRepSelect') && document.getElementById('salesRepSelect').value;
+    var reportDate = document.getElementById('reportDate') && document.getElementById('reportDate').value;
+    var amField = document.getElementById('amContent');
+    var pmField = document.getElementById('pmContent');
+    var submitBtn = document.getElementById('submitDailyReportBtn');
+
+    if (!amField || !pmField) return;
+
+    if (!salesRep || !reportDate) {
+      amField.value = '';
+      pmField.value = '';
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'データ取得中...';
+    }
+
+    amField.value = '';
+    pmField.value = '';
+
+    try {
+      var res = await fetchAPI('getDailyReports', { salesRep: salesRep, limit: 100 });
+      if (res && res.success && res.data) {
+        var found = res.data.find(function(r) { return r.date === reportDate; });
+        if (found) {
+          amField.value = found.amContent || '';
+          pmField.value = found.pmContent || '';
+        }
+      }
+    } catch(err) {
+      console.error(err);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📝 日報を提出する';
       }
     }
   }
@@ -142,8 +194,7 @@
       if (confirmed) {
         localStorage.setItem('drep_' + salesRep + '_' + reportDate, '1');
         showToast('✅ 日報を提出しました！');
-        document.getElementById('amContent').value = '';
-        document.getElementById('pmContent').value = '';
+        // 保存した内容をフォームに残し、続けて編集が行えるようにする
         checkSubmittedBadge();
         var pastList = document.getElementById('pastReportsList');
         if (pastList && pastList.style.display !== 'none') {
