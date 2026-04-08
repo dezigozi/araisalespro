@@ -84,13 +84,25 @@
       var res = await fetchAPI('getDailyReports', { salesRep: salesRep, limit: 60 });
       if (!res || !res.success || !res.data) continue;
       var j;
+      var found = false;
       for (j = 0; j < res.data.length; j++) {
         var r = res.data[j];
         if (r.date !== reportDate || r.salesRep !== salesRep) continue;
         
+        found = true;
+        // 削除確認（両方空）の場合は、見つかった時点でNG（後でループを抜ける）
+        if (!amContent && !pmContent) {
+          break;
+        }
+
         // バックエンドでマージや追記が行われるため、送信した内容が含まれていればOKとする
         if (amContent && String(r.amContent || '').indexOf(amContent.trim()) === -1) continue;
         if (pmContent && String(r.pmContent || '').indexOf(pmContent.trim()) === -1) continue;
+        return true;
+      }
+
+      // 両方空欄（＝削除目的）の場合、対象レポートが存在しなければ（found == false）、削除成功とみなす
+      if (!amContent && !pmContent && !found) {
         return true;
       }
     }
@@ -144,7 +156,7 @@
     var amContent = document.getElementById('amContent').value.trim();
     var pmContent = document.getElementById('pmContent').value.trim();
 
-    if (!amContent && !pmContent) {
+    if (!amContent && !pmContent && !isDailyReportEditMode) {
       showToast('AM・PMどちらかの業務内容を入力してください', true);
       return;
     }
@@ -177,8 +189,13 @@
       }
 
       if (confirmed) {
-        localStorage.setItem('drep_' + salesRep + '_' + reportDate, '1');
-        showToast('✅ 日報を提出しました！');
+        if (!amContent && !pmContent) {
+          localStorage.removeItem('drep_' + salesRep + '_' + reportDate);
+          showToast('🗑️ 日報を削除しました。');
+        } else {
+          localStorage.setItem('drep_' + salesRep + '_' + reportDate, '1');
+          showToast('✅ 日報を提出しました！');
+        }
         // 保存した内容をフォームに残し、続けて編集が行えるようにする
         checkSubmittedBadge();
         var pastList = document.getElementById('pastReportsList');
@@ -317,7 +334,10 @@
                    '<span class="past-report-date">📅 ' + dateStr + '</span>' +
                    repBadge +
                  '</div>' +
-                 '<button type="button" class="action-btn edit-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(255,255,255,0.1); border:none; border-radius:4px; color:#e2e8f0; cursor:pointer;" title="編集・削除">✏️ 編集</button>' +
+                 '<div style="display:flex; flex-direction:column; gap:0.25rem;">' +
+                   '<button type="button" class="action-btn edit-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(255,255,255,0.1); border:none; border-radius:4px; color:#e2e8f0; cursor:pointer;" title="編集">✏️ 編集</button>' +
+                   '<button type="button" class="action-btn delete-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(239,68,68,0.2); border:none; border-radius:4px; color:#ef4444; cursor:pointer;" title="削除">🗑️ 削除</button>' +
+                 '</div>' +
                '</div>' +
                amHtml +
                pmHtml +
@@ -332,6 +352,48 @@
         if (item && item.dataset.report) {
           var reportData = JSON.parse(item.dataset.report.replace(/&apos;/g, "'"));
           startEditDailyReport(reportData);
+        }
+      });
+    });
+
+    list.querySelectorAll('.delete-report-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        if (!confirm('この日報を削除してもよろしいですか？')) return;
+        
+        var item = btn.closest('.past-report-item');
+        if (item && item.dataset.report) {
+          var reportData = JSON.parse(item.dataset.report.replace(/&apos;/g, "'"));
+          
+          btn.textContent = '削除中...';
+          btn.disabled = true;
+          try {
+            var result = await postAPI({
+              action: 'saveDailyReport',
+              salesRep: reportData.salesRep,
+              date: reportData.date,
+              amContent: '',
+              pmContent: '',
+              overwrite: true
+            });
+            
+            if (result && result.success) {
+              showToast('🗑️ 日報を削除しました。');
+              localStorage.removeItem('drep_' + reportData.salesRep + '_' + reportData.date);
+              checkSubmittedBadge();
+              pastReportsLoaded = false;
+              await loadPastReports();
+              pastReportsLoaded = true;
+            } else {
+              showToast('削除失敗: ' + ((result && result.error) || '不明なエラー'), true);
+              btn.textContent = '🗑️ 削除';
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showToast('削除失敗: ' + (err.message || '不明なエラー'), true);
+            btn.textContent = '🗑️ 削除';
+            btn.disabled = false;
+          }
         }
       });
     });
@@ -415,7 +477,10 @@
                  '<div class="activity-header" style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">' +
                    '<span class="activity-date">📅 ' + dateStr + '</span>' +
                    repBadge +
-                   '<button type="button" class="action-btn edit-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(255,255,255,0.1); border:none; border-radius:4px; color:#e2e8f0; cursor:pointer; margin-left:auto;" title="編集・削除">✏️ 編集</button>' +
+                   '<div style="display:flex; flex-direction:column; gap:0.25rem; margin-left:auto;">' +
+                     '<button type="button" class="action-btn edit-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(255,255,255,0.1); border:none; border-radius:4px; color:#e2e8f0; cursor:pointer;" title="編集">✏️ 編集</button>' +
+                     '<button type="button" class="action-btn delete-report-btn" style="padding:4px 8px; font-size:0.8rem; background:rgba(239,68,68,0.2); border:none; border-radius:4px; color:#ef4444; cursor:pointer;" title="削除">🗑️ 削除</button>' +
+                   '</div>' +
                  '</div>' +
                  amHtml + pmHtml +
                '</div>';
@@ -429,6 +494,53 @@
           if (item && item.dataset.report) {
             var reportData = JSON.parse(item.dataset.report.replace(/&apos;/g, "'"));
             startEditDailyReport(reportData);
+          }
+        });
+      });
+
+      resultList.querySelectorAll('.delete-report-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function(e) {
+          e.stopPropagation();
+          if (!confirm('この日報を削除してもよろしいですか？')) return;
+          
+          var item = btn.closest('.past-report-item');
+          if (item && item.dataset.report) {
+            var reportData = JSON.parse(item.dataset.report.replace(/&apos;/g, "'"));
+            
+            btn.textContent = '削除中...';
+            btn.disabled = true;
+            try {
+              var result = await postAPI({
+                action: 'saveDailyReport',
+                salesRep: reportData.salesRep,
+                date: reportData.date,
+                amContent: '',
+                pmContent: '',
+                overwrite: true
+              });
+              
+              if (result && result.success) {
+                showToast('🗑️ 日報を削除しました。');
+                localStorage.removeItem('drep_' + reportData.salesRep + '_' + reportData.date);
+                checkSubmittedBadge();
+                item.remove();
+                
+                var pastList = document.getElementById('pastReportsList');
+                if (pastList && pastList.style.display !== 'none') {
+                  pastReportsLoaded = false;
+                  await loadPastReports();
+                  pastReportsLoaded = true;
+                }
+              } else {
+                showToast('削除失敗: ' + ((result && result.error) || '不明なエラー'), true);
+                btn.textContent = '🗑️ 削除';
+                btn.disabled = false;
+              }
+            } catch (err) {
+              showToast('削除失敗: ' + (err.message || '不明なエラー'), true);
+              btn.textContent = '🗑️ 削除';
+              btn.disabled = false;
+            }
           }
         });
       });
