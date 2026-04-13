@@ -29,7 +29,7 @@
   </header>
 
   <!-- タブ切り替え -->
-  <div style="display: flex; background: #1a1f2e; border-bottom: 1px solid #2d3748; padding: 0 16px;">
+  <div style="display: flex; align-items: center; background: #1a1f2e; border-bottom: 1px solid #2d3748; padding: 0 16px;">
     <button id="tab-kasouhin"
       onclick="switchTab('kasouhin')"
       style="padding: 12px 24px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; border-bottom: 3px solid #3b82f6; color: #3b82f6; background: transparent; transition: all 0.2s;">
@@ -40,6 +40,19 @@
       style="padding: 12px 24px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; border-bottom: 3px solid transparent; color: #9ca3af; background: transparent; transition: all 0.2s;">
       📕 500受注レポート
     </button>
+    <div style="margin-left: auto;">
+      <button id="btn-open-external"
+        onclick="openExternal()"
+        title="別タブで開く"
+        style="display: flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 13px; font-weight: bold; border: 1px solid #3b82f6; border-radius: 6px; cursor: pointer; color: #3b82f6; background: transparent; transition: all 0.2s;"
+        onmouseover="this.style.background='#1e3a5f'"
+        onmouseout="this.style.background='transparent'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        別タブで開く
+      </button>
+    </div>
   </div>
 
   <!-- iframeエリア -->
@@ -49,13 +62,20 @@
     title="架装品売上レポート"
   ></iframe>
   <iframe id="iframe-500"
-    src="https://c0b0e2da.kasouhin-500-web.pages.dev/"
+    src="https://kasouhin-500-web.vercel.app/"
     style="flex: 1; width: 100%; border: none; display: none;"
     title="500受注レポート"
   ></iframe>
 
   <script>
+    const URLS = {
+      kasouhin: 'https://kasouhin-uriage-web.vercel.app/',
+      '500': 'https://kasouhin-500-web.vercel.app/'
+    };
+    let currentTab = 'kasouhin';
+
     function switchTab(name) {
+      currentTab = name;
       const tabs = ['kasouhin', '500'];
       tabs.forEach(t => {
         const iframe = document.getElementById('iframe-' + t);
@@ -70,6 +90,15 @@
           tab.style.color = '#9ca3af';
         }
       });
+      const color = (name === 'kasouhin') ? '#3b82f6' : '#ef4444';
+      const btn = document.getElementById('btn-open-external');
+      btn.style.borderColor = color;
+      btn.style.color = color;
+      btn.onmouseover = () => btn.style.background = (name === 'kasouhin') ? '#1e3a5f' : '#3f1a1a';
+    }
+
+    function openExternal() {
+      window.open(URLS[currentTab], '_blank', 'noopener,noreferrer');
     }
   </script>
 
