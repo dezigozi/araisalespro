@@ -18,7 +18,7 @@ function showAuthOverlay() {
     overlay.id = 'authOverlay';
     overlay.innerHTML = `
     <div class="auth-box">
-      <div class="auth-logo">ARAI <span>SALES PRO</span></div>
+      <div class="auth-logo">特販部 <span>SALES PRO</span></div>
       <p class="auth-subtitle">パスワードを入力してください</p>
       <input type="password" class="auth-input" id="authPassword" placeholder="パスワード" inputmode="numeric" pattern="[0-9]*" maxlength="10" autocomplete="off">
       <button type="button" class="auth-btn" id="authSubmit">ログイン</button>

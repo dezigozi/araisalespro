@@ -775,7 +775,7 @@ function logEmailSent(recipient, ourRep, materials) {
 function testSendEmail() {
     MailApp.sendEmail({
         to: Session.getActiveUser().getEmail(),
-        subject: '【テスト】ARAI SALES PRO メール送信テスト',
+        subject: '【テスト】特販部 SALES PRO メール送信テスト',
         body: 'このメールが届いていれば、メール送信機能は正常に動作しています。'
     });
     Logger.log('テストメール送信完了');
