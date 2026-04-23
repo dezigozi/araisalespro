@@ -40,6 +40,11 @@
       style="padding: 12px 24px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; border-bottom: 3px solid transparent; color: #9ca3af; background: transparent; transition: all 0.2s;">
       📕 500受注レポート
     </button>
+    <button id="tab-mente"
+      onclick="switchTab('mente')"
+      style="padding: 12px 24px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; border-bottom: 3px solid transparent; color: #9ca3af; background: transparent; transition: all 0.2s;">
+      🔧 メンテ実績レポート
+    </button>
     <div style="margin-left: auto;">
       <button id="btn-open-external"
         onclick="openExternal()"
@@ -66,35 +71,47 @@
     style="flex: 1; width: 100%; border: none; display: none;"
     title="500受注レポート"
   ></iframe>
+  <iframe id="iframe-mente"
+    src="https://menteweb-eta.vercel.app/"
+    style="flex: 1; width: 100%; border: none; display: none;"
+    title="メンテ実績レポート"
+  ></iframe>
 
   <script>
     const URLS = {
       kasouhin: 'https://kasouhin-uriage-web.vercel.app/',
-      '500': 'https://kasouhin-500-web.vercel.app/'
+      '500': 'https://kasouhin-500-web.vercel.app/',
+      mente: 'https://menteweb-eta.vercel.app/'
+    };
+    const TAB_COLORS = {
+      kasouhin: { color: '#3b82f6', hover: '#1e3a5f' },
+      '500':    { color: '#ef4444', hover: '#3f1a1a' },
+      mente:    { color: '#10b981', hover: '#0f2e23' }
     };
     let currentTab = 'kasouhin';
 
     function switchTab(name) {
       currentTab = name;
-      const tabs = ['kasouhin', '500'];
+      const tabs = ['kasouhin', '500', 'mente'];
       tabs.forEach(t => {
         const iframe = document.getElementById('iframe-' + t);
         const tab = document.getElementById('tab-' + t);
         if (t === name) {
           iframe.style.display = 'block';
-          tab.style.borderBottomColor = (t === 'kasouhin') ? '#3b82f6' : '#ef4444';
-          tab.style.color = (t === 'kasouhin') ? '#3b82f6' : '#ef4444';
+          tab.style.borderBottomColor = TAB_COLORS[t].color;
+          tab.style.color = TAB_COLORS[t].color;
         } else {
           iframe.style.display = 'none';
           tab.style.borderBottomColor = 'transparent';
           tab.style.color = '#9ca3af';
         }
       });
-      const color = (name === 'kasouhin') ? '#3b82f6' : '#ef4444';
+      const { color, hover } = TAB_COLORS[name];
       const btn = document.getElementById('btn-open-external');
       btn.style.borderColor = color;
       btn.style.color = color;
-      btn.onmouseover = () => btn.style.background = (name === 'kasouhin') ? '#1e3a5f' : '#3f1a1a';
+      btn.onmouseover = () => btn.style.background = hover;
+      btn.onmouseout = () => btn.style.background = 'transparent';
     }
 
     function openExternal() {
