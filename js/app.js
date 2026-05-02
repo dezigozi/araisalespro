@@ -552,20 +552,19 @@ function loadDepartments(company) {
 
   const departments = masterData.departments[company] || [];
 
+  departments.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    select.appendChild(opt);
+  });
+  
   if (departments.length > 0) {
-    // キャッシュにあれば即座に表示
-    departments.forEach(d => {
-      const opt = document.createElement('option');
-      opt.value = d;
-      opt.textContent = d;
-      select.appendChild(opt);
-    });
     select.disabled = false;
-    resetContactSelect();
   } else {
-    // キャッシュにない場合はAPIから取得（フォールバック）
-    loadDepartmentsFromAPI(company);
+    select.disabled = true;
   }
+  resetContactSelect();
 }
 
 // 担当者読み込み - チェックボックスリストに変更 ⚡
@@ -576,6 +575,14 @@ function loadContacts(company, department) {
 
   const key = `${company}_${department}`;
   const contacts = masterData.contacts[key] || [];
+
+  // 常にUIを有効化（担当者が0人でも新規追加できるようにする）
+  if (listContainer) listContainer.classList.remove('disabled');
+  if (searchInput) {
+    searchInput.disabled = false;
+    searchInput.value = '';
+  }
+  if (addBtn) addBtn.disabled = false;
 
   if (contacts.length > 0) {
     // チェックボックスリストを生成
@@ -596,14 +603,11 @@ function loadContacts(company, department) {
         item.classList.toggle('checked', item.querySelector('input').checked);
       });
     });
-
-    listContainer.classList.remove('disabled');
-    searchInput.disabled = false;
-    searchInput.value = '';
-    if (addBtn) addBtn.disabled = false;
   } else {
-    // キャッシュにない場合はAPIから取得（フォールバック）
-    loadContactsFromAPI(company, department);
+    // 担当者がいない場合でも新規追加を促すメッセージを表示
+    if (listContainer) {
+      listContainer.innerHTML = '<div style="padding: 10px; color: #666; font-size: 0.9em;">担当者がいません。「＋新規」から登録してください。</div>';
+    }
   }
 }
 
