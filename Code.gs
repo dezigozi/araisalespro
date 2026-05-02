@@ -225,7 +225,8 @@ function getCustomers() {
     const sheet = ss.getSheetByName('担当者マスタ');
     const data = sheet.getDataRange().getValues();
 
-    const customers = [...new Set(data.slice(1).map(row => row[1]).filter(c => c))];
+    // A列: 会社名
+    const customers = [...new Set(data.slice(1).map(row => row[0]).filter(c => c))];
     return { success: true, data: customers };
 }
 
@@ -239,8 +240,8 @@ function getDepartments(company) {
 
     const departments = [...new Set(
         data.slice(1)
-            .filter(row => row[1] === company)
-            .map(row => row[2])
+            .filter(row => row[0] === company) // A列: 会社名
+            .map(row => row[1]) // B列: 部署
             .filter(d => d)
     )];
 
@@ -256,8 +257,8 @@ function getContactsByDept(company, department) {
     const data = sheet.getDataRange().getValues();
 
     const contacts = data.slice(1)
-        .filter(row => row[1] === company && row[2] === department)
-        .map(row => row[3])
+        .filter(row => row[0] === company && row[1] === department) // A列: 会社名, B列: 部署
+        .map(row => row[3]) // D列: 担当者名
         .filter(c => c);
 
     return { success: true, data: contacts };
@@ -274,13 +275,11 @@ function getAllMasterData() {
     const customers = [];
     const departments = {};
     const contacts = {};
-    const contactEmails = {};
 
     data.slice(1).forEach(row => {
-        const company = row[1];  // B列: 会社名
-        const dept = row[2];     // C列: 部署
+        const company = row[0];  // A列: 会社名
+        const dept = row[1];     // B列: 部署
         const contact = row[3];  // D列: 担当者名
-        const email = row[5] || ''; // F列: メールアドレス
 
         if (!company) return;
 
@@ -302,15 +301,12 @@ function getAllMasterData() {
         if (contact && !contacts[key].includes(contact)) {
             contacts[key].push(contact);
         }
-
-        if (contact && email) {
-            contactEmails[`${company}_${dept}_${contact}`] = email;
-        }
     });
 
     return {
         success: true,
-        data: { customers, departments, contacts, contactEmails }
+        // contactEmailsは空オブジェクトを返してフロント側のエラーを防ぐ
+        data: { customers, departments, contacts, contactEmails: {} }
     };
 }
 
@@ -1092,15 +1088,13 @@ function addContact(data) {
             return { success: false, error: '会社名、部署、担当者名は必須です' };
         }
 
-        // 新規行を追加（A列のIDは自動生成されるので空欄でOK）
+        // 新規行を追加（新しい列構成: A:会社名, B:部署, C:役職, D:担当者名, E:営業担当）
         sheet.appendRow([
-            '',         // A列: ID（不使用）
-            company,    // B列: 会社名
-            department, // C列: 部署
+            company,    // A列: 会社名
+            department, // B列: 部署
+            '',         // C列: 役職
             contactName,// D列: 担当者名
-            '取引先',     // E列: 関係性
-            '',         // F列: メール
-            ''          // G列: 営業担当
+            ''          // E列: 営業担当
         ]);
 
         return { 
@@ -1254,8 +1248,9 @@ function getContactsWithLastActivity() {
         const seenContacts = new Set();
 
         for (let i = 1; i < contactData.length; i++) {
-            const company = contactData[i][1];     // B列: 会社名
-            const department = contactData[i][2];  // C列: 部署
+            const company = contactData[i][0];     // A列: 会社名
+            const department = contactData[i][1];  // B列: 部署
+            const title = contactData[i][2];       // C列: 役職
             const contactName = contactData[i][3]; // D列: 担当者名
 
             if (!company || !contactName) continue;
