@@ -1214,7 +1214,8 @@ function setupAddContactModal() {
         action: 'addContact',
         company: company,
         department: department,
-        contactName: contactName
+        contactName: contactName,
+        salesRep: state.salesRep // 営業担当を追加
       });
 
       if (result && result.success) {
@@ -1228,13 +1229,24 @@ function setupAddContactModal() {
         masterData.contacts[key].push(contactName);
         CacheManager.set(masterData);
 
-        // プルダウンに追加して選択状態に
-        const select = document.getElementById('contactSelect');
-        const opt = document.createElement('option');
-        opt.value = contactName;
-        opt.textContent = contactName;
-        select.appendChild(opt);
-        select.value = contactName;
+        // リストを再読み込みして選択状態にする
+        loadContacts(company, department);
+        // 新しく追加した担当者をチェック状態にする
+        setTimeout(() => {
+          const listContainer = document.getElementById('contactCheckboxList');
+          if (listContainer) {
+            const items = listContainer.querySelectorAll('.contact-checkbox-item');
+            items.forEach(item => {
+              if (item.dataset.name === contactName) {
+                const cb = item.querySelector('input');
+                if (cb) {
+                  cb.checked = true;
+                  item.classList.add('checked');
+                }
+              }
+            });
+          }
+        }, 100);
 
         closeModal();
       } else {

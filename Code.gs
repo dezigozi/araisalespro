@@ -225,8 +225,8 @@ function getCustomers() {
     const sheet = ss.getSheetByName('担当者マスタ');
     const data = sheet.getDataRange().getValues();
 
-    // A列: 会社名
-    const customers = [...new Set(data.slice(1).map(row => row[0]).filter(c => c))];
+    // B列: 会社名
+    const customers = [...new Set(data.slice(1).map(row => row[1]).filter(c => c))];
     return { success: true, data: customers };
 }
 
@@ -240,8 +240,8 @@ function getDepartments(company) {
 
     const departments = [...new Set(
         data.slice(1)
-            .filter(row => row[0] === company) // A列: 会社名
-            .map(row => row[1]) // B列: 部署
+            .filter(row => row[1] === company) // B列: 会社名
+            .map(row => row[2]) // C列: 部署
             .filter(d => d)
     )];
 
@@ -257,7 +257,7 @@ function getContactsByDept(company, department) {
     const data = sheet.getDataRange().getValues();
 
     const contacts = data.slice(1)
-        .filter(row => row[0] === company && row[1] === department) // A列: 会社名, B列: 部署
+        .filter(row => row[1] === company && row[2] === department) // B列: 会社名, C列: 部署
         .map(row => row[3]) // D列: 担当者名
         .filter(c => c);
 
@@ -279,8 +279,8 @@ function getAllMasterData() {
     const contacts = {};
 
     data.slice(1).forEach(row => {
-        const company = row[0];  // A列: 会社名
-        const dept = row[1];     // B列: 部署
+        const company = row[1];  // B列: 会社名
+        const dept = row[2];     // C列: 部署
         const contact = row[3];  // D列: 担当者名
 
         if (!company) return;
@@ -322,10 +322,10 @@ function getActivities() {
     const masterData = masterSheet ? masterSheet.getDataRange().getValues() : [];
     const titleMap = {};
     for (let i = 1; i < masterData.length; i++) {
-        const company = masterData[i][0] || '';
-        const dept = masterData[i][1] || '';
-        const title = masterData[i][2] || '';
-        const contact = masterData[i][3] || '';
+        const company = masterData[i][1] || ''; // B列
+        const dept = masterData[i][2] || '';    // C列
+        const title = masterData[i][4] || '';   // E列: ID予備1（役職）
+        const contact = masterData[i][3] || ''; // D列
         if (company && contact) {
             titleMap[`${company}_${dept}_${contact}`] = title;
         }
@@ -1107,19 +1107,21 @@ function addContact(data) {
             return { success: false, error: '担当者マスタが見つかりません' };
         }
 
-        const { company, department, contactName } = data;
+        const { company, department, contactName, salesRep } = data;
 
         if (!company || !department || !contactName) {
             return { success: false, error: '会社名、部署、担当者名は必須です' };
         }
 
-        // 新規行を追加（新しい列構成: A:会社名, B:部署, C:役職, D:担当者名, E:営業担当）
+        // 新規行を追加（新しい列構成: A:新規登録, B:会社名, C:部署, D:担当者名, E:予備1, F:予備2, G:営業担当）
         sheet.appendRow([
-            company,    // A列: 会社名
-            department, // B列: 部署
-            '',         // C列: 役職
-            contactName,// D列: 担当者名
-            ''          // E列: 営業担当
+            '★',          // A列: 新規登録
+            company,      // B列: 会社名
+            department,   // C列: 部署
+            contactName,  // D列: 担当者名
+            '',           // E列: ID予備1
+            '',           // F列: ID予備2
+            salesRep || '' // G列: 営業担当（Webから新規登録 ではなく 担当者名を記載）
         ]);
 
         return { 
@@ -1273,9 +1275,9 @@ function getContactsWithLastActivity() {
         const seenContacts = new Set();
 
         for (let i = 1; i < contactData.length; i++) {
-            const company = contactData[i][0];     // A列: 会社名
-            const department = contactData[i][1];  // B列: 部署
-            const title = contactData[i][2];       // C列: 役職
+            const company = contactData[i][1];     // B列: 会社名
+            const department = contactData[i][2];  // C列: 部署
+            const title = contactData[i][4];       // E列: 役職（ID予備1）
             const contactName = contactData[i][3]; // D列: 担当者名
 
             if (!company || !contactName) continue;
