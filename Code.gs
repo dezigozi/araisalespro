@@ -1428,34 +1428,46 @@ function dailyBackupToExcel() {
     try {
         const recipient = BACKUP_EMAIL_RECIPIENT;
 
-        const targetSsId = ACTIVITY_LOG_SPREADSHEET_ID;
-        const targetSs = SpreadsheetApp.openById(targetSsId);
-        const ssName = targetSs.getName();
+        // 活動ログとARAI_SALES_PROの両方のIDを指定
+        const targetSsIds = [ACTIVITY_LOG_SPREADSHEET_ID, SPREADSHEET_ID];
+        
         const now = new Date();
         const todayStr = Utilities.formatDate(now, "Asia/Tokyo", "yyyyMMdd");
         const timeStr = Utilities.formatDate(now, "Asia/Tokyo", "HH:mm");
         
-        console.log(`バックアップ開始: ${ssName}`);
+        const blobs = [];
+        const ssNames = [];
 
-        const url = "https://docs.google.com/spreadsheets/d/" + targetSsId + "/export?format=xlsx";
-        
         const options = {
             headers: {
                 Authorization: "Bearer " + ScriptApp.getOAuthToken()
             },
             muteHttpExceptions: true
         };
-        
-        const response = UrlFetchApp.fetch(url, options);
-        
-        if (response.getResponseCode() !== 200) {
-            throw new Error(`ダウンロードに失敗しました (Status: ${response.getResponseCode()})`);
+
+        // 各スプレッドシートをExcelとしてダウンロード
+        for (const targetId of targetSsIds) {
+            const targetSs = SpreadsheetApp.openById(targetId);
+            const ssName = targetSs.getName();
+            ssNames.push(ssName);
+            console.log(`バックアップ開始: ${ssName}`);
+
+            const url = "https://docs.google.com/spreadsheets/d/" + targetId + "/export?format=xlsx";
+            const response = UrlFetchApp.fetch(url, options);
+            
+            if (response.getResponseCode() !== 200) {
+                throw new Error(`${ssName} のダウンロードに失敗しました (Status: ${response.getResponseCode()})`);
+            }
+            
+            const blob = response.getBlob().setName(`${ssName}_${todayStr}_${timeStr.replace(':', '')}.xlsx`);
+            blobs.push(blob);
         }
         
-        const blob = response.getBlob().setName(`${ssName}_${todayStr}_${timeStr.replace(':', '')}.xlsx`);
-        
-        const subject = `【営業活動レポート】${Utilities.formatDate(now, "Asia/Tokyo", "yyyy/MM/dd HH:mm")}`;
-        const body = `${ssName} の定期レポートです。
+        const subject = `【営業活動レポート＆データバックアップ】${Utilities.formatDate(now, "Asia/Tokyo", "yyyy/MM/dd HH:mm")}`;
+        const body = `定期レポートおよびバックアップデータです。
+
+対象データ:
+${ssNames.map(name => "・" + name).join('\n')}
 
 送信時刻: ${Utilities.formatDate(now, "Asia/Tokyo", "yyyy/MM/dd HH:mm")}
 
@@ -1466,7 +1478,7 @@ function dailyBackupToExcel() {
             to: recipient,
             subject: subject,
             body: body,
-            attachments: [blob]
+            attachments: blobs
         });
         
         console.log(`バックアップメールを送信しました: ${recipient} (${timeStr})`);
