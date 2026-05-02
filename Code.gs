@@ -311,9 +311,24 @@ function getAllMasterData() {
 }
 
 // ========================================
-// 活動履歴取得（別スプレッドシート対応版）
+// 活動履歴取得（別スプレッドシート対応版、役職付き）
 // ========================================
 function getActivities() {
+    // 担当者マスタから役職マップを作成
+    const masterSS = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const masterSheet = masterSS.getSheetByName('担当者マスタ');
+    const masterData = masterSheet ? masterSheet.getDataRange().getValues() : [];
+    const titleMap = {};
+    for (let i = 1; i < masterData.length; i++) {
+        const company = masterData[i][0] || '';
+        const dept = masterData[i][1] || '';
+        const title = masterData[i][2] || '';
+        const contact = masterData[i][3] || '';
+        if (company && contact) {
+            titleMap[`${company}_${dept}_${contact}`] = title;
+        }
+    }
+
     const ss = getActivityLogSpreadsheet();
     const sheet = ss.getSheetByName('活動記録');
 
@@ -322,19 +337,27 @@ function getActivities() {
     }
 
     const data = sheet.getDataRange().getValues();
-    const activities = data.slice(1).map(row => ({
-        id: row[0],
-        salesRep: row[1] || '',
-        datetime: row[2],
-        type: row[3],
-        company: row[4],
-        department: row[5],
-        contact: row[6],
-        reaction: row[7],
-        met: row[8],
-        note: row[9],
-        proposals: [row[10], row[11], row[12], row[13], row[14]].filter(p => p)
-    })).reverse();
+    const activities = data.slice(1).map(row => {
+        const company = row[4] || '';
+        const department = row[5] || '';
+        const contact = row[6] || '';
+        const key = `${company}_${department}_${contact}`;
+        
+        return {
+            id: row[0],
+            salesRep: row[1] || '',
+            datetime: row[2],
+            type: row[3],
+            company: company,
+            department: department,
+            title: titleMap[key] || '', // 担当者マスタから取得した役職
+            contact: contact,
+            reaction: row[7],
+            met: row[8],
+            note: row[9],
+            proposals: [row[10], row[11], row[12], row[13], row[14]].filter(p => p)
+        };
+    }).reverse();
 
     return { success: true, data: activities };
 }

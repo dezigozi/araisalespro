@@ -103,7 +103,7 @@ async function loadDashboardData() {
     } else {
         activities = [];
         document.getElementById('summaryTableBody').innerHTML = '<tr><td colspan="10">読み込みエラー</td></tr>';
-        document.getElementById('visitsTableBody').innerHTML = '<tr><td colspan="4">読み込みエラー</td></tr>';
+        document.getElementById('visitsTableBody').innerHTML = '<tr><td colspan="7">読み込みエラー</td></tr>';
         return;
     }
 
@@ -318,6 +318,7 @@ function renderVisitsTable(companyStats) {
             allVisits.push({
                 company: stat.company,
                 department: v.department || '',
+                title: v.title || '',
                 contact: v.contact,
                 datetime: v.datetime,
                 met: v.met,
@@ -327,10 +328,10 @@ function renderVisitsTable(companyStats) {
     });
 
     // CSV用データ初期化
-    currentVisitsData = [['会社名', '部署名', '氏名', '月日', '結果', '担当者']];
+    currentVisitsData = [['会社名', '部署名', '役職', '氏名', '月日', '結果', '担当者']];
 
     if (allVisits.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-secondary);">訪問者データなし</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-secondary);">訪問者データなし</td></tr>';
         return;
     }
 
@@ -344,7 +345,7 @@ function renderVisitsTable(companyStats) {
     filteredVisits.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 
     if (filteredVisits.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-secondary);">該当する訪問者データがありません</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-secondary);">該当する訪問者データがありません</td></tr>';
         return;
     }
 
@@ -358,12 +359,13 @@ function renderVisitsTable(companyStats) {
         else if (v.met === '×') badgeClass = 'bad';
 
         // CSV用データ追加（フィルター適用後のデータのみ）
-        currentVisitsData.push([v.company, v.department, v.contact, dateStr, v.met, v.salesRep]);
+        currentVisitsData.push([v.company, v.department, v.title, v.contact, dateStr, v.met, v.salesRep]);
 
         return `
       <tr>
         <td>${v.company}</td>
         <td>${v.department}</td>
+        <td>${v.title}</td>
         <td>${v.contact}</td>
         <td>${dateStr}</td>
         <td><span class="result-badge ${badgeClass}">${v.met}</span></td>
