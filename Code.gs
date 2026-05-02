@@ -265,7 +265,9 @@ function getContactsByDept(company, department) {
 }
 
 // ========================================
-// 全マスタデータ一括取得（修正済み：F列=メール）
+// 全マスタデータ一括取得
+// ※担当者マスタの新しい列構成（電話番号・訪問月・メール・ID・関係性を削除）
+// A列: 会社名, B列: 部署, C列: 役職, D列: 担当者名, E列: 営業担当
 // ========================================
 function getAllMasterData() {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -1095,6 +1097,7 @@ function getCustomerPhones() {
 
 // ========================================
 // 新規担当者登録（Webから登録 = ★マーク付与）
+// ※新しい列構成: A:会社名, B:部署, C:役職, D:担当者名, E:営業担当
 // ========================================
 function addContact(data) {
     try {
