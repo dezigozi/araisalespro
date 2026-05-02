@@ -1060,26 +1060,25 @@ function getSheetLastModified() {
 }
 
 // ========================================
-// 顧客TEL情報取得（顧客マスタのC列:部署→D列:TEL）
-// 部署の順序リストも返す（スプレッドシートの並び順）
+// 部署の表示順序取得（※顧客マスタを廃止し、担当者マスタから取得に一本化）
+// 部署の順序リストを返す（スプレッドシートの並び順）
 // ========================================
 function getCustomerPhones() {
     try {
         const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-        const sheet = ss.getSheetByName('顧客マスタ');
+        const sheet = ss.getSheetByName('担当者マスタ'); // 顧客マスタから変更
 
         if (!sheet) {
-            return { success: false, error: '顧客マスタが見つかりません' };
+            return { success: false, error: '担当者マスタが見つかりません' };
         }
 
         const data = sheet.getDataRange().getValues();
         const phones = {};
         const branchOrder = []; // 順序付きリスト
 
-        // B列: 会社名, C列: 部署
-        // 電話番号の参照は廃止（列が削除されるため）
+        // A列: 会社名, B列: 部署
         for (let i = 1; i < data.length; i++) {
-            const department = data[i][2] || ''; // C列 (index 2): 部署
+            const department = data[i][1] || ''; // B列 (index 1): 部署
             
             if (department) {
                 // 重複を避けて順序を維持

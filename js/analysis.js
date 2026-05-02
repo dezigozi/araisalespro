@@ -99,7 +99,7 @@ async function deleteFromIndexedDB(key) {
 // グローバル状態
 let allData = [];
 let customerPhones = {}; // 部署→電話番号のマッピング
-let branchOrder = []; // 部署の順序（顧客マスタの並び順）
+let branchOrder = []; // 部署の順序（担当者マスタの並び順）
 let repSummaryData = []; // 第1階層: 担当者別
 let clientSummaryData = []; // 第2階層: 顧客別
 let productSummaryData = []; // 第3階層: 品番別
@@ -549,7 +549,7 @@ function populateFilters() {
     });
     abbrSelect.innerHTML = abbrOpts;
 
-    // 部店: 顧客マスタの順序を使用（データに存在するもののみ）
+    // 部店: 担当者マスタの順序を使用（データに存在するもののみ）
     const dataBranches = new Set(allData.map(d => d.branch).filter(Boolean));
     const orderedBranches = branchOrder.filter(b => dataBranches.has(b));
     // branchOrderにないけどデータにある部店も追加
@@ -582,7 +582,7 @@ function onAbbrChange() {
         );
     }
 
-    // 顧客マスタの順序を使用
+    // 担当者マスタの順序を使用
     const orderedBranches = branchOrder.filter(b => dataBranches.has(b));
     // branchOrderにないけどデータにある部店も追加
     dataBranches.forEach(b => {
@@ -604,7 +604,7 @@ function clearFilters() {
     document.getElementById('abbrFilter').value = '';
     document.getElementById('hqOnlyFilter').checked = false;
 
-    // 部店を全件に戻す（顧客マスタの順序）
+    // 部店を全件に戻す（担当者マスタの順序）
     const dataBranches = new Set(allData.map(d => d.branch).filter(Boolean));
     const orderedBranches = branchOrder.filter(b => dataBranches.has(b));
     dataBranches.forEach(b => {
