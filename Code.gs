@@ -1055,19 +1055,15 @@ function getCustomerPhones() {
         const phones = {};
         const branchOrder = []; // 順序付きリスト
 
-        // B列: 会社名, C列: 部署, D列: TEL
-        // 見積実績マスタのAE列（部店）と顧客マスタのC列（部署）を紐づけ
+        // B列: 会社名, C列: 部署
+        // 電話番号の参照は廃止（列が削除されるため）
         for (let i = 1; i < data.length; i++) {
             const department = data[i][2] || ''; // C列 (index 2): 部署
-            const tel = data[i][3] || '';        // D列 (index 3): TEL
             
             if (department) {
                 // 重複を避けて順序を維持
                 if (!branchOrder.includes(department)) {
                     branchOrder.push(department);
-                }
-                if (tel) {
-                    phones[department] = tel;
                 }
             }
         }
@@ -1096,16 +1092,15 @@ function addContact(data) {
             return { success: false, error: '会社名、部署、担当者名は必須です' };
         }
 
-        // 新規行を追加（A列に★を付けてWeb登録を識別）
-        // 列: A:★マーク, B:会社名, C:部署, D:担当者名, E:TEL, F:メール, G:備考
+        // 新規行を追加（A列のIDは自動生成されるので空欄でOK）
         sheet.appendRow([
-            '★',        // A列: Web登録マーク
+            '',         // A列: ID（不使用）
             company,    // B列: 会社名
             department, // C列: 部署
             contactName,// D列: 担当者名
-            '',         // E列: TEL（空）
-            '',         // F列: メール（空）
-            'Webから新規登録' // G列: 備考
+            '取引先',     // E列: 関係性
+            '',         // F列: メール
+            ''          // G列: 営業担当
         ]);
 
         return { 
@@ -1259,13 +1254,15 @@ function getContactsWithLastActivity() {
         const seenContacts = new Set();
 
         for (let i = 1; i < contactData.length; i++) {
-            const id = contactData[i][0];          // A列: ID
             const company = contactData[i][1];     // B列: 会社名
             const department = contactData[i][2];  // C列: 部署
             const contactName = contactData[i][3]; // D列: 担当者名
 
             if (!company || !contactName) continue;
 
+            // A列のIDは使わず、自動生成
+            const id = `${company}_${department}_${contactName}`;
+            
             const key = `${company}_${department}_${contactName}`;
             if (seenContacts.has(key)) continue;
             seenContacts.add(key);
