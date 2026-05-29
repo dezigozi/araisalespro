@@ -40,6 +40,11 @@
       style="padding: 12px 24px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; border-bottom: 3px solid transparent; color: #9ca3af; background: transparent; transition: all 0.2s;">
       📕 500受注レポート
     </button>
+    <button id="tab-mitsumori"
+      onclick="switchTab('mitsumori')"
+      style="padding: 12px 24px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; border-bottom: 3px solid transparent; color: #9ca3af; background: transparent; transition: all 0.2s;">
+      📗 架装品見積実績レポート
+    </button>
     <button id="tab-mente"
       onclick="switchTab('mente')"
       style="padding: 12px 24px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; border-bottom: 3px solid transparent; color: #9ca3af; background: transparent; transition: all 0.2s;">
@@ -71,6 +76,11 @@
     style="flex: 1; width: 100%; border: none; display: none;"
     title="500受注レポート"
   ></iframe>
+  <iframe id="iframe-mitsumori"
+    src="https://kasouhin-mitsumori-web.vercel.app/"
+    style="flex: 1; width: 100%; border: none; display: none;"
+    title="架装品見積実績レポート"
+  ></iframe>
   <iframe id="iframe-mente"
     src="https://menteweb-eta.vercel.app/"
     style="flex: 1; width: 100%; border: none; display: none;"
@@ -81,18 +91,20 @@
     const URLS = {
       kasouhin: 'https://kasouhin-uriage-web.vercel.app/',
       '500': 'https://kasouhin-500-web.vercel.app/',
+      mitsumori: 'https://kasouhin-mitsumori-web.vercel.app/',
       mente: 'https://menteweb-eta.vercel.app/'
     };
     const TAB_COLORS = {
-      kasouhin: { color: '#3b82f6', hover: '#1e3a5f' },
-      '500':    { color: '#ef4444', hover: '#3f1a1a' },
-      mente:    { color: '#10b981', hover: '#0f2e23' }
+      kasouhin:  { color: '#3b82f6', hover: '#1e3a5f' },
+      '500':     { color: '#ef4444', hover: '#3f1a1a' },
+      mitsumori: { color: '#b6c2af', hover: '#2f3826' },
+      mente:     { color: '#10b981', hover: '#0f2e23' }
     };
     let currentTab = 'kasouhin';
 
     function switchTab(name) {
       currentTab = name;
-      const tabs = ['kasouhin', '500', 'mente'];
+      const tabs = ['kasouhin', '500', 'mitsumori', 'mente'];
       tabs.forEach(t => {
         const iframe = document.getElementById('iframe-' + t);
         const tab = document.getElementById('tab-' + t);
