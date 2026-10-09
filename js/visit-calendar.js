@@ -9,6 +9,7 @@ let calendarState = {
   month: new Date().getMonth() + 1,
   schedules: [],
   selectedCell: null,  // 単一選択に変更
+  dirtyCells: new Map(),  // 未保存の変更があるセル（キー: 担当|日付）
   salesReps: ['高野', '青木', '土岐', '中村'],
   dragData: null  // ドラッグ中のデータ
 };
@@ -53,9 +54,9 @@ function setupCalendarEvents() {
   // 削除ボタン
   document.getElementById('deleteScheduleBtn')?.addEventListener('click', deleteSchedule);
 
-  // 時間帯ラジオボタン変更時に即座に適用
+  // 時間帯ボタン押下時に即座に適用（同じ時間帯を続けて押しても反応するよう click で拾う）
   document.querySelectorAll('input[name="timeSlot"]').forEach(radio => {
-    radio.addEventListener('change', applyTimeSlotToSelected);
+    radio.addEventListener('click', applyTimeSlotToSelected);
   });
 }
 
@@ -101,8 +102,9 @@ function renderCalendarMatrix() {
   const matrix = document.getElementById('calendarMatrix');
   if (!matrix) return;
 
-  // 選択状態リセット
+  // 選択状態・未保存の変更をリセット
   calendarState.selectedCell = null;
+  calendarState.dirtyCells.clear();
   updateSaveButtonState();
 
   // 月の日数を計算
@@ -194,7 +196,7 @@ function renderCalendarMatrix() {
 
   // 訪問先入力イベント
   matrix.querySelectorAll('.destination-input').forEach(input => {
-    input.addEventListener('change', (e) => {
+    input.addEventListener('input', (e) => {
       handleDestinationChange(e.target);
     });
     input.addEventListener('focus', (e) => {
@@ -239,12 +241,11 @@ function handleCellClick(cell) {
     cell.classList.add('selected');
     calendarState.selectedCell = cell;
 
-    // 現在の時間帯をラジオボタンに反映
+    // 現在の時間帯をラジオボタンに反映（未設定のマスなら選択を外す）
     const currentSlot = cell.dataset.timeslot;
-    if (currentSlot) {
-      const radio = document.querySelector(`input[name="timeSlot"][value="${currentSlot}"]`);
-      if (radio) radio.checked = true;
-    }
+    document.querySelectorAll('input[name="timeSlot"]').forEach(radio => {
+      radio.checked = radio.value === currentSlot;
+    });
   }
 
   updateSaveButtonState();
@@ -254,7 +255,11 @@ function handleCellClick(cell) {
 // 時間帯選択を選択中のセルに適用
 // ========================================
 function applyTimeSlotToSelected() {
-  if (!calendarState.selectedCell) return;
+  if (!calendarState.selectedCell) {
+    document.querySelectorAll('input[name="timeSlot"]').forEach(radio => { radio.checked = false; });
+    showCalendarToast('先に日付のマスを選択してください', true);
+    return;
+  }
 
   const selectedSlot = document.querySelector('input[name="timeSlot"]:checked')?.value;
   if (!selectedSlot) return;
@@ -276,6 +281,14 @@ function applyTimeSlotToSelected() {
   badge.textContent = selectedSlot;
   badge.className = `time-badge ${getTimeSlotClass(selectedSlot)}`;
 
+  markCellDirty(cell);
+}
+
+// ========================================
+// 未保存の変更として記録
+// ========================================
+function markCellDirty(cell) {
+  calendarState.dirtyCells.set(`${cell.dataset.rep}|${cell.dataset.date}`, cell);
   updateSaveButtonState();
 }
 
@@ -283,7 +296,8 @@ function applyTimeSlotToSelected() {
 // 訪問先変更処理
 // ========================================
 function handleDestinationChange(input) {
-  updateSaveButtonState();
+  const cell = input.closest('.schedule-cell');
+  if (cell) markCellDirty(cell);
 }
 
 // ========================================
@@ -295,8 +309,8 @@ function updateSaveButtonState() {
   const hasSelection = !!calendarState.selectedCell;
 
   if (saveBtn) {
-    // 選択中のセルがあれば保存可能
-    saveBtn.disabled = !hasSelection;
+    // 未保存の変更 or 選択中のセルがあれば保存可能
+    saveBtn.disabled = !hasSelection && calendarState.dirtyCells.size === 0;
   }
 
   if (deleteBtn) {
@@ -307,50 +321,55 @@ function updateSaveButtonState() {
 }
 
 // ========================================
-// 選択中のセルを保存
+// 変更したセルをまとめて保存
 // ========================================
 async function saveSchedule() {
-  if (!calendarState.selectedCell) return;
+  // 変更したセル＋選択中のセル（重複は除く）
+  const cells = new Map(calendarState.dirtyCells);
+  const sel = calendarState.selectedCell;
+  if (sel) cells.set(`${sel.dataset.rep}|${sel.dataset.date}`, sel);
+
+  // 時間帯も訪問先も空で、もともと予定もないマスは保存しない
+  const targets = [...cells.values()].filter(cell => {
+    const destination = cell.querySelector('.destination-input')?.value || '';
+    const original = calendarState.schedules.some(
+      s => s.担当 === cell.dataset.rep && s.訪問予定日 === cell.dataset.date
+    );
+    return cell.dataset.timeslot || destination || original;
+  });
+  if (targets.length === 0) return;
 
   const btn = document.getElementById('saveScheduleBtn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = '保存中...';
+  if (btn) btn.disabled = true;
+
+  let failed = 0;
+  for (let i = 0; i < targets.length; i++) {
+    const cell = targets[i];
+    if (btn) btn.textContent = targets.length > 1 ? `保存中 ${i + 1}/${targets.length}` : '保存中...';
+    try {
+      await postCalendarAPI({
+        action: 'updateVisitSchedule',
+        担当: cell.dataset.rep,
+        訪問予定日: cell.dataset.date,
+        訪問時間: cell.dataset.timeslot || '',
+        訪問先: cell.querySelector('.destination-input')?.value || ''
+      });
+    } catch (e) {
+      console.error('保存エラー:', e);
+      failed++;
+    }
   }
 
-  const cell = calendarState.selectedCell;
-  const rep = cell.dataset.rep;
-  const date = cell.dataset.date;
-  const timeSlot = cell.dataset.timeslot || '';
-  const input = cell.querySelector('.destination-input');
-  const destination = input?.value || '';
-
-  try {
-    await postCalendarAPI({
-      action: 'updateVisitSchedule',
-      担当: rep,
-      訪問予定日: date,
-      訪問時間: timeSlot,
-      訪問先: destination
-    });
-
-    // 選択解除
-    cell.classList.remove('selected');
-    calendarState.selectedCell = null;
-
-    showCalendarToast('保存しました');
-
-    // リロード
-    await loadVisitSchedule();
-  } catch (e) {
-    console.error('保存エラー:', e);
-    showCalendarToast('保存に失敗しました', true);
+  if (failed > 0) {
+    showCalendarToast(`${failed}件の保存に失敗しました`, true);
+  } else {
+    showCalendarToast(targets.length > 1 ? `${targets.length}件保存しました` : '保存しました');
   }
 
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = '💾 保存';
-  }
+  if (btn) btn.textContent = '💾 保存';
+
+  // リロード（選択・未保存状態もここでリセット）
+  await loadVisitSchedule();
 }
 
 // ========================================

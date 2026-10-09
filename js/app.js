@@ -1069,7 +1069,8 @@ function resetContactSelect() {
   listContainer.classList.add('disabled');
   searchInput.disabled = true;
   searchInput.value = '';
-  if (addBtn) addBtn.disabled = true;
+  // 新規登録はリストに無い会社・部署もここから登録できるよう常に有効
+  if (addBtn) addBtn.disabled = false;
 }
 
 // ========================================
@@ -1158,8 +1159,24 @@ function setupAddContactModal() {
   const cancelBtn = document.getElementById('cancelAddContact');
   const submitBtn = document.getElementById('submitAddContact');
   const nameInput = document.getElementById('newContactName');
-  const modalCompany = document.getElementById('modalCompany');
-  const modalDepartment = document.getElementById('modalDepartment');
+  const companyInput = document.getElementById('newContactCompany');
+  const deptInput = document.getElementById('newContactDepartment');
+  const companyList = document.getElementById('newCompanyList');
+  const deptList = document.getElementById('newDepartmentList');
+
+  const fillDatalist = (list, items) => {
+    list.innerHTML = '';
+    (items || []).forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      list.appendChild(opt);
+    });
+  };
+
+  // 会社を入れたら、その会社の既存部署を候補に出す
+  companyInput.addEventListener('input', () => {
+    fillDatalist(deptList, masterData.departments[companyInput.value.trim()]);
+  });
 
   if (!modal || !openBtn) return;
 
@@ -1168,16 +1185,14 @@ function setupAddContactModal() {
     const company = document.getElementById('companySelect').value;
     const department = document.getElementById('departmentSelect').value;
 
-    if (!company || !department) {
-      showToast('会社と部署を選択してください', true);
-      return;
-    }
-
-    modalCompany.textContent = company;
-    modalDepartment.textContent = department;
+    // 選択済みの会社・部署を初期値に（未選択なら空欄から入力）
+    fillDatalist(companyList, masterData.customers);
+    fillDatalist(deptList, masterData.departments[company]);
+    companyInput.value = company;
+    deptInput.value = department;
     nameInput.value = '';
     modal.style.display = 'flex';
-    nameInput.focus();
+    (!company ? companyInput : !department ? deptInput : nameInput).focus();
   });
 
   // モーダルを閉じる
@@ -1197,8 +1212,14 @@ function setupAddContactModal() {
   // 登録処理
   submitBtn.addEventListener('click', async () => {
     const contactName = nameInput.value.trim();
-    const company = document.getElementById('companySelect').value;
-    const department = document.getElementById('departmentSelect').value;
+    const company = companyInput.value.trim();
+    const department = deptInput.value.trim();
+
+    if (!company || !department) {
+      showToast('会社と部署を入力してください', true);
+      (!company ? companyInput : deptInput).focus();
+      return;
+    }
 
     if (!contactName) {
       showToast('担当者名を入力してください', true);
@@ -1221,15 +1242,30 @@ function setupAddContactModal() {
       if (result && result.success) {
         showToast(result.unverified ? `★ ${contactName} を送信しました（結果はマスタ更新で確認）` : `★ ${contactName} を登録しました`);
 
-        // キャッシュを更新
+        // キャッシュを更新（新しい会社・部署も追加）
+        if (!masterData.customers.includes(company)) {
+          masterData.customers.push(company);
+        }
+        if (!masterData.departments[company]) {
+          masterData.departments[company] = [];
+        }
+        if (!masterData.departments[company].includes(department)) {
+          masterData.departments[company].push(department);
+        }
         const key = `${company}_${department}`;
         if (!masterData.contacts[key]) {
           masterData.contacts[key] = [];
         }
-        masterData.contacts[key].push(contactName);
+        if (!masterData.contacts[key].includes(contactName)) {
+          masterData.contacts[key].push(contactName);
+        }
         CacheManager.set(masterData);
 
-        // リストを再読み込みして選択状態にする
+        // 会社・部署を選び直してリストを再読み込みし、選択状態にする
+        populateCompanySelect();
+        document.getElementById('companySelect').value = company;
+        loadDepartments(company);
+        document.getElementById('departmentSelect').value = department;
         loadContacts(company, department);
         // 新しく追加した担当者をチェック状態にする
         setTimeout(() => {
