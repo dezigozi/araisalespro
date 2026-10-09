@@ -1135,16 +1135,17 @@ function addContact(data) {
 
         const { company, department, contactName, salesRep } = data;
 
-        if (!company || !department || !contactName) {
-            return { success: false, error: '会社名、部署、担当者名は必須です' };
+        // 部署・担当者名は任意（リース会社だけ先に登録するケースあり）
+        if (!company) {
+            return { success: false, error: '会社名は必須です' };
         }
 
         // 新規行を追加（新しい列構成: A:新規登録, B:会社名, C:部署, D:担当者名, E:予備1, F:予備2, G:営業担当）
         sheet.appendRow([
             '★',          // A列: 新規登録
             company,      // B列: 会社名
-            department,   // C列: 部署
-            contactName,  // D列: 担当者名
+            department || '',   // C列: 部署
+            contactName || '',  // D列: 担当者名
             '',           // E列: ID予備1
             '',           // F列: ID予備2
             salesRep || '' // G列: 営業担当（Webから新規登録 ではなく 担当者名を記載）
@@ -1152,7 +1153,7 @@ function addContact(data) {
 
         return { 
             success: true, 
-            message: `${contactName} を登録しました（★Web登録）` 
+            message: `${contactName || department || company} を登録しました（★Web登録）` 
         };
     } catch (error) {
         return { success: false, error: error.message };
