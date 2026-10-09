@@ -4,6 +4,10 @@
 // ・このプロジェクトは「ARAI_SALES_PRO」スプレッドシートにのみコンテナバインドすること。
 //   （拡張機能 → Apps Script は ARAI のブックから開く）
 // ・ウェブアプリのデプロイはこの 1 か所だけ。フロントは js/gas-config.js の GAS_WEBAPP_URL をこの /exec に合わせる。
+//   本番デプロイID: AKfycbwrd5rm_eKQGJgON83RW8qg5H0SkMkqk6Zmrwh-lM62cqG6he9Ugq-7vmN0wXaaj-a3Nw
+//   （「デプロイを管理」で説明「本番（アプリ用）」のもの）
+//   コード更新時: デプロイ → デプロイを管理 → 本番を選択 → 鉛筆 → バージョン「新バージョン」→ デプロイ
+//   ※「新しいデプロイ」は URL が変わるので使わない
 // ・「特販部_営業訪問ログ」には GAS を置かない（過去に複製している場合は削除してよい）。
 //   活動記録・営業日報は下記 ACTIVITY_LOG_SPREADSHEET_ID で openById して書き込む。
 // ========================================
@@ -217,6 +221,9 @@ function dispatchPost(data) {
             break;
         case 'addContact':
             result = addContact(data);
+            break;
+        case 'deleteCompany':
+            result = deleteCompany(data);
             break;
         case 'updateActivity':
             result = updateActivity(data);
@@ -1155,6 +1162,46 @@ function addContact(data) {
             success: true, 
             message: `${contactName || department || company} を登録しました（★Web登録）` 
         };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// ========================================
+// 会社削除（部署・担当者がぶら下がっていない会社のみ）
+// ========================================
+function deleteCompany(data) {
+    try {
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        const sheet = ss.getSheetByName('担当者マスタ');
+
+        if (!sheet) {
+            return { success: false, error: '担当者マスタが見つかりません' };
+        }
+
+        const company = data.company;
+        if (!company) {
+            return { success: false, error: '会社名は必須です' };
+        }
+
+        const values = sheet.getDataRange().getValues();
+        const rows = [];
+        for (let i = 1; i < values.length; i++) {
+            if (values[i][1] !== company) continue; // B列: 会社名
+            if (values[i][2] || values[i][3]) {     // C列: 部署, D列: 担当者名
+                return { success: false, error: '部署または担当者が登録されている会社は削除できません' };
+            }
+            rows.push(i + 1);
+        }
+
+        if (rows.length === 0) {
+            return { success: false, error: '該当する会社が見つかりません' };
+        }
+
+        // 下の行から削除（行番号がずれないように）
+        rows.reverse().forEach(r => sheet.deleteRow(r));
+
+        return { success: true, message: `${company} を削除しました` };
     } catch (error) {
         return { success: false, error: error.message };
     }

@@ -216,6 +216,7 @@ function populateCompanySelect() {
     opt.textContent = c;
     select.appendChild(opt);
   });
+  updateDeleteCompanyBtn();
 }
 
 // キャッシュ状態を表示
@@ -296,7 +297,11 @@ function setupEventListeners() {
       resetDepartmentSelect();
       resetContactSelect();
     }
+    updateDeleteCompanyBtn();
   });
+
+  // 会社削除（間違って登録した会社用）
+  document.getElementById('deleteCompanyBtn').addEventListener('click', deleteCompanyRecord);
 
   // 部署選択 - キャッシュから即座に表示
   document.getElementById('departmentSelect').addEventListener('change', (e) => {
@@ -1052,6 +1057,49 @@ function setupEditActivityModal() {
 }
 
 // ========================================
+// 会社削除（部署・担当者がぶら下がっていない会社のみ）
+// ========================================
+function updateDeleteCompanyBtn() {
+  const btn = document.getElementById('deleteCompanyBtn');
+  if (!btn) return;
+  const company = document.getElementById('companySelect').value;
+  const hasDept = (masterData.departments[company] || []).length > 0;
+  btn.style.display = company && !hasDept ? '' : 'none';
+}
+
+async function deleteCompanyRecord() {
+  const company = document.getElementById('companySelect').value;
+  if (!company) return;
+  if (!confirm(`「${company}」を担当者マスタから削除しますか？`)) return;
+
+  const btn = document.getElementById('deleteCompanyBtn');
+  btn.disabled = true;
+
+  try {
+    const result = await postAPI({ action: 'deleteCompany', company: company });
+
+    if (result && result.success) {
+      showToast(result.unverified ? `${company} の削除を送信しました（結果はマスタ更新で確認）` : `${company} を削除しました`);
+
+      // キャッシュから外してプルダウンを作り直す
+      masterData.customers = masterData.customers.filter(c => c !== company);
+      delete masterData.departments[company];
+      CacheManager.set(masterData);
+      populateCompanySelect();
+      resetDepartmentSelect();
+      resetContactSelect();
+      updateDeleteCompanyBtn();
+    } else {
+      throw new Error(result?.error || '削除に失敗しました');
+    }
+  } catch (error) {
+    showToast(error.message || '通信エラー', true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ========================================
 // セレクトボックスリセット
 // ========================================
 function resetDepartmentSelect() {
@@ -1126,6 +1174,7 @@ async function handleSubmit(e) {
     document.querySelectorAll('.reaction-btn').forEach(b => b.classList.remove('active'));
     resetDepartmentSelect();
     resetContactSelect();
+    updateDeleteCompanyBtn();
     resetProposalProducts(); // 提案商品もリセット
   } else {
     showToast((result && result.error) || '記録に失敗しました', true);
@@ -1269,6 +1318,7 @@ function setupAddContactModal() {
         populateCompanySelect();
         document.getElementById('companySelect').value = company;
         loadDepartments(company);
+        updateDeleteCompanyBtn();
         if (department) {
           document.getElementById('departmentSelect').value = department;
           loadContacts(company, department);

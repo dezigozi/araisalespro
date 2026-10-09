@@ -1368,6 +1368,31 @@ body {
   cursor: not-allowed;
 }
 
+.delete-company-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  color: var(--accent-red);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.delete-company-btn:hover:not(:disabled) {
+  border-color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.delete-company-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ========================================
    Modal Dialog
    ======================================== */
