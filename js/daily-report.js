@@ -110,6 +110,7 @@
   }
 
   var isDailyReportEditMode = false;
+  var editPrevRep = null; // 編集で担当者を切り替える前の担当者（保存後に戻す）
 
   // ----------------------------------------
   // 過去の日報から「編集」をクリックして読み込む
@@ -122,6 +123,8 @@
     var submitBtn = document.getElementById('submitDailyReportBtn');
     
     if (reportDate) reportDate.value = reportData.date;
+    // 他の人の日報を編集すると担当者が切り替わるので、保存後に戻せるよう元の担当者を覚えておく
+    if (salesRep && editPrevRep === null) editPrevRep = salesRep.value;
     if (salesRep && reportData.salesRep) salesRep.value = reportData.salesRep;
     if (amField) amField.value = reportData.amContent || '';
     if (pmField) pmField.value = reportData.pmContent || '';
@@ -158,6 +161,14 @@
 
     if (!amContent && !pmContent && !isDailyReportEditMode) {
       showToast('AM・PMどちらかの業務内容を入力してください', true);
+      return;
+    }
+
+    // 担当者の選び間違い防止（別の人の日報に追記されてしまうため）
+    var dp = String(reportDate || '').split('-');
+    var dateLabel = dp.length === 3 ? dp[0] + '年' + parseInt(dp[1], 10) + '月' + parseInt(dp[2], 10) + '日' : reportDate;
+    if (!confirm('「' + salesRep + '」さんの ' + dateLabel + ' の日報として' +
+                 (isDailyReportEditMode ? '保存' : '提出') + 'します。よろしいですか？')) {
       return;
     }
 
@@ -216,6 +227,13 @@
     } finally {
       // 送信完了後にモードをリセット
       isDailyReportEditMode = false;
+      // 編集で切り替えた担当者を元に戻す（そのまま次の日報を出すと別の人の日報に入るため）
+      var repSel = document.getElementById('salesRepSelect');
+      if (repSel && editPrevRep !== null && editPrevRep !== repSel.value) {
+        repSel.value = editPrevRep;
+        checkSubmittedBadge();
+      }
+      editPrevRep = null;
       if (btn) {
         btn.disabled = false;
         btn.textContent = '📝 日報を提出する';

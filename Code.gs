@@ -152,9 +152,11 @@ function doGet(e) {
             result = getActionList(e.parameter.yearMonth);
             break;
         case 'deleteVisitSchedule':
-            result = deleteVisitSchedule({
-                担当: e.parameter.rep,
-                訪問予定日: e.parameter.date
+            result = withWriteLock(function () {
+                return deleteVisitSchedule({
+                    担当: e.parameter.rep,
+                    訪問予定日: e.parameter.date
+                });
             });
             break;
         case 'getDailyReports':
@@ -176,6 +178,31 @@ function doGet(e) {
 // ========================================
 function doPost(e) {
     const data = JSON.parse(e.postData.contents);
+    // 書き込みは1件ずつ順番に（同時保存で行番号がずれ、別の人の行を消すのを防ぐ）
+    const result = withWriteLock(function () {
+        return dispatchPost(data);
+    });
+
+    return ContentService.createTextOutput(JSON.stringify(result))
+        .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ========================================
+// 書き込みロック（スクリプト全体で1件ずつ）
+// ========================================
+function withWriteLock(fn) {
+    const lock = LockService.getScriptLock();
+    if (!lock.tryLock(30000)) {
+        return { success: false, error: '混み合っています。少し待ってからもう一度お試しください' };
+    }
+    try {
+        return fn();
+    } finally {
+        lock.releaseLock();
+    }
+}
+
+function dispatchPost(data) {
     let result;
 
     switch (data.action) {
@@ -213,8 +240,7 @@ function doPost(e) {
             result = { success: false, error: 'Unknown action' };
     }
 
-    return ContentService.createTextOutput(JSON.stringify(result))
-        .setMimeType(ContentService.MimeType.JSON);
+    return result;
 }
 
 // ========================================
