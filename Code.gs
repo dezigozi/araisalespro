@@ -1565,7 +1565,7 @@ ${ssNames.map(name => "・" + name).join('\n')}
 送信時刻: ${Utilities.formatDate(now, "Asia/Tokyo", "yyyy/MM/dd HH:mm")}
 
 本メールはGoogle Apps Scriptによる自動送信です。
-毎日 8:00 と 18:00 に送信されます。`;
+毎週月曜 8:00 に送信されます。`;
         
         MailApp.sendEmail({
             to: recipient,
@@ -1582,11 +1582,12 @@ ${ssNames.map(name => "・" + name).join('\n')}
 }
 
 // ========================================
-// トリガー設定（8時と18時に自動実行）
+// トリガー設定（毎週月曜8時に自動実行）
 // GASエディタで一度だけ手動実行してください
+// ※ 以前は毎日 8時・18時だった。日報ダイジェスト（別GAS）と同じ月曜8時にそろえた
 // ========================================
 function setupDailyBackupTriggers() {
-    // 既存のトリガーを削除（重複防止）
+    // 既存のトリガーを削除（重複防止・旧 8時/18時 もここで消える）
     const triggers = ScriptApp.getProjectTriggers();
     triggers.forEach(trigger => {
         if (trigger.getHandlerFunction() === 'dailyBackupToExcel') {
@@ -1595,25 +1596,21 @@ function setupDailyBackupTriggers() {
         }
     });
 
-    // 毎日8時に実行
+    // 毎週月曜8時に実行
     ScriptApp.newTrigger('dailyBackupToExcel')
         .timeBased()
+        .onWeekDay(ScriptApp.WeekDay.MONDAY)
         .atHour(8)
-        .everyDays(1)
         .inTimezone('Asia/Tokyo')
         .create();
-    console.log('8時のトリガーを設定しました');
+    console.log('毎週月曜8時のトリガーを設定しました');
 
-    // 毎日18時に実行
-    ScriptApp.newTrigger('dailyBackupToExcel')
-        .timeBased()
-        .atHour(18)
-        .everyDays(1)
-        .inTimezone('Asia/Tokyo')
-        .create();
-    console.log('18時のトリガーを設定しました');
-
-    SpreadsheetApp.getUi().alert('トリガーを設定しました！\n\n毎日 8:00 と 18:00 に\ntakano@araidenki.com へ\n営業活動レポートが送信されます。');
+    // GASエディタから実行すると getUi() が使えずエラーになるので、そのときはログだけ
+    try {
+        SpreadsheetApp.getUi().alert('トリガーを設定しました！\n\n毎週月曜 8:00 に\ntakano@araidenki.com へ\n営業活動レポートが送信されます。');
+    } catch (e) {
+        console.log('トリガー設定完了（毎週月曜 8:00）');
+    }
 }
 
 // ========================================
